@@ -40,3 +40,5 @@ bin/
 
 ### Bot Files ##
 /logs/
+
+config*.json

@@ -1,6 +1,7 @@
 package br.com.syrxmc.bot.core.listeners;
 
 import br.com.syrxmc.bot.core.listeners.events.DynamicHandler;
+import br.com.syrxmc.bot.data.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -10,14 +11,17 @@ import java.awt.*;
 
 public class MemberJoinListener extends DynamicHandler<GuildMemberJoinEvent> {
 
-    public MemberJoinListener() {
+    private final Config config;
+
+    public MemberJoinListener(Config config) {
         super(event -> true);
+        this.config = config;
     }
 
     @Override
     public void onEvent(GuildMemberJoinEvent event) {
         Member member = event.getMember();
-        TextChannel channel = event.getGuild().getChannelById(TextChannel.class, "1160278425743937627");
+        TextChannel channel = event.getGuild().getChannelById(TextChannel.class, config.getGreetingChannelId());
 
         String author = String.format("%s(%s)", event.getMember().getEffectiveName(), event.getMember().getId());
 
@@ -28,11 +32,13 @@ public class MemberJoinListener extends DynamicHandler<GuildMemberJoinEvent> {
                 "\n" +
                 "Você precisa passar por uma verificação para sabermos se você não é um robô, mas antes disso leia nossas <#1160278506421358643> para que não ocorra nenhuma problema futuro.\n" +
                 "\n" +
-                "\uD83C\uDF10 Site: [link](https://google.com)\n" +
-                "<:discord:1160410448160620665> Discord: [link](https://discord.gg/SryxMC)");
+                "\uD83C\uDF10 Site: [link]("+config.getSiteUrl()+")\n" +
+                "<:discord:1160410448160620665> Discord: [link]("+config.getDiscordInvite()+")");
         embed.setFooter("SyrxMC - Sempre trazendo o melhor para a sua diversão!");
-        embed.setColor(Color.cyan);
+        embed.setThumbnail(event.getUser().getAvatarUrl());
+        embed.setColor(Color.getColor("#282b30"));
 
+        channel.sendMessage(event.getUser().getAsMention()).queue();
         channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

@@ -5,6 +5,7 @@ import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions.enabledFor;
 
 @Getter
 public class CommandManager {
@@ -54,7 +57,7 @@ public class CommandManager {
         if (command != null) {
             getCommands().put(command.getName(), command);
             commandData.add(Commands.slash(command.getName(), command.getDescription()).addOptions(command.getOptions())
-                    .addSubcommands(getSubCommandData(command)));
+                    .addSubcommands(getSubCommandData(command)).setDefaultPermissions(enabledFor(command.getPermissions())));
         }
     }
 
