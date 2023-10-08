@@ -7,9 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
 
@@ -28,10 +25,10 @@ public class ConfigLoader<T> {
 
         if(!file.exists()){
             logger.info("Arquivo de configuração {} criada com sucesso", fileName);
-            FileWriter.write(fileName, gson.toJson(constructor.get()));
+            FileIO.write(fileName, gson.toJson(constructor.get()));
             System.exit(1);
         }
 
-        return gson.fromJson(FileWriter.read(fileName), clazz);
+        return gson.fromJson(FileIO.read(fileName), clazz);
     }
 }
