@@ -1,7 +1,6 @@
 package br.com.syrxmc.bot.data;
 
-import com.google.gson.annotations.JsonAdapter;
-import lombok.*;
+import lombok.Data;
 
 @Data
 public class Config {
@@ -13,5 +12,11 @@ public class Config {
     private String discordInvite;
 
     private String siteUrl;
+
+    private String ticketCategoryId;
+
+    private String suggestionChannelId;
+
+    private String systemLogChannelId;
 
 }

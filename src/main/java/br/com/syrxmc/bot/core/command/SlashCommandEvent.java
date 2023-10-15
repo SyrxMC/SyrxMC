@@ -45,6 +45,10 @@ public class SlashCommandEvent {
        return event.deferReply();
     }
 
+    public void ignoreReplyWait(){
+        event.deferReply().complete().deleteOriginal().queue();
+    }
+
 
     public Guild getGuild(){
         return event.getGuild();

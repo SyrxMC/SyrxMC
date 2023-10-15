@@ -6,8 +6,8 @@ plugins {
 group = 'br.com.syrxmc.bot'
 version = '0.0.1'
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
+sourceCompatibility = JavaVersion.VERSION_20
+targetCompatibility = JavaVersion.VERSION_20
 
 compileJava.options.encoding = 'UTF-8'
 

@@ -1,11 +1,9 @@
 package br.com.syrxmc.bot.core;
 
 import br.com.syrxmc.bot.core.command.CommandManager;
-import br.com.syrxmc.bot.core.listeners.CommandListener;
-import br.com.syrxmc.bot.core.listeners.MemberJoinListener;
-import br.com.syrxmc.bot.core.listeners.VerificationButtonListener;
-import br.com.syrxmc.bot.core.listeners.VerificationModalListener;
+import br.com.syrxmc.bot.core.listeners.*;
 import br.com.syrxmc.bot.core.listeners.events.DynamicEventHandler;
+import br.com.syrxmc.bot.core.listeners.support.*;
 import br.com.syrxmc.bot.data.Config;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import lombok.Getter;
@@ -47,8 +45,13 @@ public class SyrxCore {
         commandManager.publicCommands();
         DynamicEventHandler.getInstance().addListener(new CommandListener(this));
         DynamicEventHandler.getInstance().addListener(new MemberJoinListener(config));
+        DynamicEventHandler.getInstance().addListener(new SupportSuggestionModalListener(config));
         DynamicEventHandler.getInstance().addListener(new VerificationButtonListener());
         DynamicEventHandler.getInstance().addListener(new VerificationModalListener());
+        DynamicEventHandler.getInstance().addListener(new SupportButtonListener());
+        DynamicEventHandler.getInstance().addListener(new SupportSuggestionSelect());
+        DynamicEventHandler.getInstance().addListener(new SupportTicketModalListener());
+        DynamicEventHandler.getInstance().addListener(new ButtonCloseTicketListener());
     }
 
     private JDA createBot() {
@@ -58,7 +61,7 @@ public class SyrxCore {
                         GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS,
                         GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES,
                         GatewayIntent.GUILD_MODERATION, GatewayIntent.GUILD_EMOJIS_AND_STICKERS)
-                .setChunkingFilter(ChunkingFilter.NONE)
+                .setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter)
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
