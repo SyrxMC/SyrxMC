@@ -57,6 +57,7 @@ public class DynamicEventHandler implements EventListener {
     @Override
     public void onEvent(@NotNull GenericEvent event) {
         try {
+
             synchronized (handlers) {
                 Iterator<DynamicHandler<?>> iterator = handlers.stream().iterator();
 

@@ -3,7 +3,6 @@ package br.com.syrxmc.bot.core;
 import br.com.syrxmc.bot.core.command.CommandManager;
 import br.com.syrxmc.bot.core.listeners.*;
 import br.com.syrxmc.bot.core.listeners.events.DynamicEventHandler;
-import br.com.syrxmc.bot.core.listeners.support.*;
 import br.com.syrxmc.bot.data.Config;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import lombok.Getter;
@@ -45,13 +44,8 @@ public class SyrxCore {
         commandManager.publicCommands();
         DynamicEventHandler.getInstance().addListener(new CommandListener(this));
         DynamicEventHandler.getInstance().addListener(new MemberJoinListener(config));
-        DynamicEventHandler.getInstance().addListener(new SupportSuggestionModalListener(config));
-        DynamicEventHandler.getInstance().addListener(new VerificationButtonListener());
-        DynamicEventHandler.getInstance().addListener(new VerificationModalListener());
-        DynamicEventHandler.getInstance().addListener(new SupportButtonListener());
-        DynamicEventHandler.getInstance().addListener(new SupportSuggestionSelect());
-        DynamicEventHandler.getInstance().addListener(new SupportTicketModalListener());
-        DynamicEventHandler.getInstance().addListener(new ButtonCloseTicketListener());
+        DynamicEventHandler.getInstance().addListener(new CashButtonListener(config));
+        DynamicEventHandler.getInstance().addListener(new IntermedioButtonListener(config));
     }
 
     private JDA createBot() {

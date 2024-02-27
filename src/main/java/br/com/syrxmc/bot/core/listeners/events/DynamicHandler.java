@@ -30,6 +30,7 @@ public abstract class DynamicHandler<T> implements IDynamicHandler<T> {
                 return true;
             }
         } catch (Exception ignored) {
+//            ignored.printStackTrace();
         }
         return false;
     }

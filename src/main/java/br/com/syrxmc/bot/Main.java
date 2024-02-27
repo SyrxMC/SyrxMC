@@ -1,24 +1,46 @@
 package br.com.syrxmc.bot;
 
 import br.com.syrxmc.bot.core.SyrxCore;
+import br.com.syrxmc.bot.data.Cash;
 import br.com.syrxmc.bot.data.Config;
-import br.com.syrxmc.bot.utils.ConfigLoader;
+import br.com.syrxmc.bot.utils.DataManager;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 
+
+@Getter
 public class Main {
 
+
+    @Getter
+    private static Cash cash;
+    @Getter
+    private static  DataManager<Cash> cashManager;
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     @Getter
     private static SyrxCore syrxCore;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         logger.info("Iniciando o bot...");
-        syrxCore = new SyrxCore(new ConfigLoader<Config>().loadFile("config.json", Config.class, Config::new));
+        DataManager<Config> configDataManager = new DataManager<>("config.json", Config::new).create();
+        cashManager = new DataManager<>("cashTickets.json", Cash::new).create();
+
+        cash = cashManager.get();
+
+        syrxCore = new SyrxCore(configDataManager.get());
+
 
         syrxCore.inicialize();
+    }
+
+
+    @SneakyThrows
+    public static void reloadConfig(){
+        cashManager = new DataManager<>("cashTickets.json", Cash::new).create();
     }
 }

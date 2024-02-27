@@ -2,7 +2,6 @@ package br.com.syrxmc.bot.commands;
 
 import br.com.syrxmc.bot.core.command.SlashCommand;
 import br.com.syrxmc.bot.core.command.SlashCommandEvent;
-import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -11,7 +10,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 import java.awt.*;
 
-@RegisterCommand
+//@RegisterCommand
 public class SupportMenuCommand extends SlashCommand {
 
     public SupportMenuCommand(){

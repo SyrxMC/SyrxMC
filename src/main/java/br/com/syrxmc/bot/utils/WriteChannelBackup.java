@@ -27,6 +27,11 @@ public class WriteChannelBackup {
 
     @SneakyThrows
     public static void writeFile(TextChannel channel, String path) throws IOException {
+
+        if(channel.getIterableHistory().isEmpty()){
+            return;
+        }
+
         String channelPath = "files" + fileSeparator + String.format(path + fileSeparator + "%1$s", channel.getName() + "-" + instantToString(channel.getTimeCreated().toInstant())) + fileSeparator;
         File f = new File(channelPath);
 
