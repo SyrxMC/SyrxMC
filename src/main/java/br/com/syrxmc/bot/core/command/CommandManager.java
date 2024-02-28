@@ -25,13 +25,13 @@ public class CommandManager {
 
     private final JDA jda;
 
+    {
+        findCommands();
+    }
+
     @SneakyThrows
     public CommandManager(JDA jda) {
         this.jda = jda;
-    }
-
-    {
-        findCommands();
     }
 
     public void publicCommands() {

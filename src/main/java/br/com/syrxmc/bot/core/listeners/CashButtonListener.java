@@ -25,30 +25,41 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
 
     @Override
     public void onEvent(ButtonInteractionEvent event) {
+
         Cash cash = Main.getCashManager().get();
 
-
         if (!cash.getTickets().isEmpty()) {
+
             if (cash.getTickets().get(event.getMember().getId()) != null) {
-                Optional<Cash.Ticket> ticket = cash.getTickets().get(event.getMember().getId()).stream().filter(ticket1 -> Cash.TicketType.CASH.equals(ticket1.type())).findFirst();
+
+                Optional<Cash.Ticket> ticket = cash.getTickets().get(event.getMember().getId()).stream().filter(ticket1 ->
+                        Cash.TicketType.CASH.equals(ticket1.type())
+                ).findFirst();
 
                 if (ticket.isPresent()) {
                     event.reply("Você já tem uma sala de cash aberta!").setEphemeral(true).queue();
                     return;
                 }
-            }
-        }
-        event.getInteraction().deferReply().complete().deleteOriginal().queue();
-        TextChannel createdChannel = event.getGuild().getCategoryById(config.getCashCategoryId()).createTextChannel(
-                        "CASH-" + event.getMember().getEffectiveName())
-                .addMemberPermissionOverride(event.getMember().getIdLong(), ALLOWED_PERMISSIONS, DENIED_PERMISSIONS).complete();
 
+            }
+
+        }
+
+        event.getInteraction().deferReply().complete().deleteOriginal().queue();
+
+        TextChannel createdChannel = event.getGuild().getCategoryById(config.getCashCategoryId())
+                .createTextChannel("CASH-" + event.getMember().getEffectiveName())
+                .addMemberPermissionOverride(event.getMember().getIdLong(), ALLOWED_PERMISSIONS, DENIED_PERMISSIONS)
+                .complete();
 
         try {
+
             cash.getTickets().computeIfAbsent(event.getMember().getId(), s -> new ArrayList<>())
                     .add(new Cash.Ticket(event.getMember().getId(), createdChannel.getId(), Cash.TicketType.CASH));
+
             Main.getCashManager().save(cash);
             Main.reloadConfig();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

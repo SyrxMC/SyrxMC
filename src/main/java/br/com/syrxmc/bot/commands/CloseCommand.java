@@ -23,12 +23,47 @@ import static net.dv8tion.jda.internal.utils.Helpers.isEmpty;
 @RegisterCommand
 public class CloseCommand extends SlashCommand {
 
-
     public CloseCommand() {
         super("fechar", "Fechar a salas de tickets");
         addSubcommand(new CloseCash());
         addSubcommand(new CloseIntermedio());
         addPermissions(Permission.ADMINISTRATOR);
+    }
+
+    public static void closeChannel(Cash.Ticket ticket, Cash cash, String price, TextChannel logs, TextChannel channel, Member author) {
+
+        try {
+
+            WriteChannelBackup.writeFile(channel, "/tickets/cash");
+
+            if (!isEmpty(price)) {
+                if (!isNull(ticket)) {
+                    logs.sendMessageFormat("Venda realizada para <@%s> da sala de %s em CASH, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
+                } else {
+                    author.getUser().openPrivateChannel().complete().sendMessage("Deu um erro ao enviar a mensagem para o canal de logs favor contatar os devs.").queue();
+                }
+            }
+
+            if (!isNull(ticket)) {
+
+                List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
+
+                tickets.remove(ticket);
+                cash.getTickets().put(ticket.creatorId(), tickets);
+
+                Main.getCashManager().save(cash);
+                Main.reloadConfig();
+
+            } else {
+                author.getUser().openPrivateChannel().complete().sendMessage("Deu um erro ao enviar a mensagem para o canal de logs favor contatar os devs.").queue();
+            }
+
+            channel.sendMessage("Encerrando ticket em 10s.").queue();
+            channel.delete().queueAfter(10, TimeUnit.SECONDS);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -46,6 +81,7 @@ public class CloseCommand extends SlashCommand {
 
         @Override
         public void execute(SlashCommandInteractionEvent event) {
+
             String price = event.getOption("valor").getAsString();
 
             TextChannel textChannel = event.getChannel().asTextChannel();
@@ -63,10 +99,11 @@ public class CloseCommand extends SlashCommand {
                 }
             }
 
-            if(!Cash.TicketType.CASH.equals(ticket.type())){
+            if (!Cash.TicketType.CASH.equals(ticket.type())) {
                 event.reply("O canal que você está tentando fechar não é de cash").setEphemeral(true).queue();
                 return;
             }
+
             event.deferReply().complete().deleteOriginal().queue();
             closeChannel(ticket, cash, price, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getCashLogsId()), textChannel, event.getMember());
         }
@@ -96,46 +133,13 @@ public class CloseCommand extends SlashCommand {
                 }
             }
 
-            if(!Cash.TicketType.INTERMEDIO.equals(ticket.type())){
+            if (!Cash.TicketType.INTERMEDIO.equals(ticket.type())) {
                 event.reply("O canal que você está tentando fechar não é de intermédio").setEphemeral(true).queue();
                 return;
             }
+
             event.deferReply().complete().deleteOriginal().queue();
             closeChannel(ticket, cash, null, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getCashLogsId()), textChannel, event.getMember());
-        }
-    }
-
-
-    public static void closeChannel(Cash.Ticket ticket, Cash cash, String price, TextChannel logs, TextChannel channel, Member author){
-        try {
-
-
-            WriteChannelBackup.writeFile(channel, "/tickets/cash");
-
-
-            if (!isEmpty(price)) {
-                if (!isNull(ticket)) {
-                    logs.sendMessageFormat("Venda realizada para <@%s> da sala de %s em CASH, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
-                } else {
-                    author.getUser().openPrivateChannel().complete().sendMessage("Deu um erro ao enviar a mensagem para o canal de logs favor contatar os devs.").queue();
-                }
-            }
-            if (!isNull(ticket)) {
-
-                List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
-                tickets.remove(ticket);
-                cash.getTickets().put(ticket.creatorId(), tickets);
-
-                Main.getCashManager().save(cash);
-                Main.reloadConfig();
-            } else {
-                author.getUser().openPrivateChannel().complete().sendMessage("Deu um erro ao enviar a mensagem para o canal de logs favor contatar os devs.").queue();
-            }
-
-            channel.sendMessage("Encerrando ticket em 10s.").queue();
-            channel.delete().queueAfter(10, TimeUnit.SECONDS);
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 

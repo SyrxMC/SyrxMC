@@ -4,7 +4,6 @@ import lombok.Getter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,10 +40,9 @@ public abstract class SlashCommand {
     }
 
 
-    public void addPermissions(Permission... permissions){
+    public void addPermissions(Permission... permissions) {
         this.permissions.addAll(List.of(permissions));
     }
-
 
     public void addSubcommand(SlashSubcommand subcommand) {
         subcommands.put(subcommand.getName(), subcommand);

@@ -9,14 +9,13 @@ import java.util.Map;
 @Data
 public class Cash {
 
-
     private Map<String, List<Ticket>> tickets = new HashMap<>();
 
-
-    public record Ticket(String creatorId, String channelId, TicketType type){}
-
-    public static enum TicketType {
+    public enum TicketType {
         CASH, INTERMEDIO, GOLD
+    }
+
+    public record Ticket(String creatorId, String channelId, TicketType type) {
     }
 
 }

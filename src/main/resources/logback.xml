@@ -17,7 +17,8 @@
             <level>INFO</level>
         </filter>
         <encoder>
-            <pattern>%boldMagenta([%d{HH:mm:ss}]) [%green(%t)/%highlight(%level)] %boldBlue([%logger{0}]): %msg%n</pattern>
+            <pattern>%boldMagenta([%d{HH:mm:ss}]) [%green(%t)/%highlight(%level)] %boldBlue([%logger{0}]): %msg%n
+            </pattern>
         </encoder>
     </appender>
 

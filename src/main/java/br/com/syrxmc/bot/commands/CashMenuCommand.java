@@ -21,15 +21,19 @@ public class CashMenuCommand extends SlashCommand {
     public void execute(SlashCommandEvent event) throws Exception {
 
         event.defer().complete().deleteOriginal().queue();
+
         EmbedBuilder builder = new EmbedBuilder();
+
         builder.setTitle("Cash");
         builder.setDescription("Selecione abaixo a opção desejada");
         builder.setFooter("Cuidado com vendas não autorizadas de terceiros!");
-        builder.setColor(Color.decode("#FFDD0E"));
+        builder.setColor(Color.decode("#FFC700"));
         builder.setImage("https://amplologistica.com.br/wp-content/uploads/2018/02/ecommerce-subway-studio-malaysia.gif");
-        event.getChannel().sendMessageEmbeds(builder.build())
-                .addActionRow(Button.success("cashMenu", "QUERO CASHAR!!"),
-                        Button.success("intermedio", "INTERMÉDIO"),
-                        Button.success("gold", "QUERO GOLD!")).queue();
+
+        event.getChannel().sendMessageEmbeds(builder.build()).addActionRow(
+                Button.secondary("cashMenu",    "QUERO CASHAR!!"),
+                Button.secondary("intermedio",  "INTERMÉDIO"),
+                Button.secondary("gold",        "QUERO GOLD!")
+        ).queue();
     }
 }

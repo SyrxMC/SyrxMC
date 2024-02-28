@@ -7,8 +7,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
-import java.awt.*;
-
 public class MemberJoinListener extends DynamicHandler<GuildMemberJoinEvent> {
 
     private final Config config;
@@ -20,6 +18,7 @@ public class MemberJoinListener extends DynamicHandler<GuildMemberJoinEvent> {
 
     @Override
     public void onEvent(GuildMemberJoinEvent event) {
+
         Member member = event.getMember();
         TextChannel channel = event.getGuild().getChannelById(TextChannel.class, config.getGreetingChannelId());
 
@@ -30,5 +29,7 @@ public class MemberJoinListener extends DynamicHandler<GuildMemberJoinEvent> {
 
         channel.sendMessage(event.getUser().getAsMention()).queue();
         channel.sendMessageEmbeds(embed.build()).queue();
+
     }
+
 }

@@ -17,7 +17,6 @@ public class ButtonEventHandler extends DynamicHandler<ButtonInteractionEvent> {
     private ButtonEventHandler(Button button, IDynamicHandler<ButtonInteractionEvent> handler) {
         super(event -> Objects.equals(event.getButton().getId(), button.getId()), false);
         this.handler = handler;
-
     }
 
     public static ButtonEventHandler handle(Button button, IDynamicHandler<ButtonInteractionEvent> handler) {
@@ -28,4 +27,5 @@ public class ButtonEventHandler extends DynamicHandler<ButtonInteractionEvent> {
     public void onEvent(ButtonInteractionEvent event) {
         handler.onEvent(event);
     }
+
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class SlashSubcommand {
+
     private final String name;
     private final String description;
     private final List<OptionData> options;
@@ -39,4 +40,5 @@ public abstract class SlashSubcommand {
     public SubcommandData toSubCommandData() {
         return new SubcommandData(getName(), getDescription()).addOptions(getOptions());
     }
+
 }

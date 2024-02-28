@@ -12,6 +12,6 @@ public class FileIO {
     }
 
     public static String read(String fileName) throws IOException {
-      return Files.readString(Paths.get(fileName));
+        return Files.readString(Paths.get(fileName));
     }
 }

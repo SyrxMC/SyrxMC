@@ -12,7 +12,7 @@ targetCompatibility = JavaVersion.VERSION_20
 compileJava.options.encoding = 'UTF-8'
 
 repositories {
-    maven{
+    maven {
         url 'https://jitpack.io'
     }
     mavenCentral()

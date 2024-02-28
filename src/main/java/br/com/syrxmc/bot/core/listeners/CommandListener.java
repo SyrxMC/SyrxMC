@@ -18,6 +18,7 @@ public class CommandListener extends DynamicHandler<SlashCommandInteractionEvent
 
     @Override
     public void onEvent(SlashCommandInteractionEvent event) {
+
         SlashCommand command = syrxCore.getCommandManager().getCommand(event.getName());
 
         if (command == null) {
@@ -27,6 +28,7 @@ public class CommandListener extends DynamicHandler<SlashCommandInteractionEvent
         String subcommandName = event.getSubcommandName();
 
         if (subcommandName != null) {
+
             SlashSubcommand subcommand = command.getSubcommands().get(subcommandName);
 
             if (subcommand == null) {
@@ -39,12 +41,17 @@ public class CommandListener extends DynamicHandler<SlashCommandInteractionEvent
             } catch (Exception e) {
                 event.reply("An error occurred: " + e.getMessage()).setEphemeral(true).queue();
             }
+
         } else {
+
             try {
                 command.execute(new SlashCommandEvent(event));
             } catch (Exception e) {
                 event.reply("An error occurred: " + e.getMessage()).setEphemeral(true).queue();
             }
+
         }
+
     }
+
 }

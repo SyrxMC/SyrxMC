@@ -20,11 +20,11 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 public class DynamicEventHandler implements EventListener {
 
-    private static DynamicEventHandler instance;
-
-    private final ScheduledExecutorService threadpool = new ScheduledThreadPoolExecutor(2);
-
     private final static Logger logger = LoggerFactory.getLogger(DynamicEventHandler.class);
+
+    private static DynamicEventHandler instance;
+    private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(2);
+    private final Set<DynamicHandler<?>> handlers = Collections.synchronizedSet(new LinkedHashSet<>());
 
     public static DynamicEventHandler getInstance() {
         if (instance == null) {
@@ -33,8 +33,14 @@ public class DynamicEventHandler implements EventListener {
         return instance;
     }
 
-    private final Set<DynamicHandler<?>> handlers = Collections.synchronizedSet(new LinkedHashSet<>());
-
+    public static <J> void listenOf(IDynamicHandler<J> handler) {
+        DynamicEventHandler.getInstance().addListener(new DynamicHandler<J>(j -> true) {
+            @Override
+            public void onEvent(J event) {
+                handler.onEvent(event);
+            }
+        });
+    }
 
     public <T> void addListener(DynamicHandler<T> event) {
         addListener(event, -1, null, null);
@@ -44,7 +50,7 @@ public class DynamicEventHandler implements EventListener {
         handlers.add(event);
 
         if (timeout > 0 && unit != null) {
-            threadpool.schedule(() -> {
+            executor.schedule(() -> {
                 try {
                     if (handlers.remove(event) && timeoutAction != null) timeoutAction.run();
                 } catch (Exception e) {
@@ -57,7 +63,6 @@ public class DynamicEventHandler implements EventListener {
     @Override
     public void onEvent(@NotNull GenericEvent event) {
         try {
-
             synchronized (handlers) {
                 Iterator<DynamicHandler<?>> iterator = handlers.stream().iterator();
 
@@ -73,15 +78,6 @@ public class DynamicEventHandler implements EventListener {
         } catch (Exception e) {
             logger.error("Erro ao remover evento", e);
         }
-    }
-
-    public static <J> void listenOf(IDynamicHandler<J> handler) {
-        DynamicEventHandler.getInstance().addListener(new DynamicHandler<J>(j -> true) {
-            @Override
-            public void onEvent(J event) {
-                handler.onEvent(event);
-            }
-        });
     }
 
 }

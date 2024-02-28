@@ -1,7 +1,10 @@
 package br.com.syrxmc.bot.core;
 
 import br.com.syrxmc.bot.core.command.CommandManager;
-import br.com.syrxmc.bot.core.listeners.*;
+import br.com.syrxmc.bot.core.listeners.CashButtonListener;
+import br.com.syrxmc.bot.core.listeners.CommandListener;
+import br.com.syrxmc.bot.core.listeners.IntermedioButtonListener;
+import br.com.syrxmc.bot.core.listeners.MemberJoinListener;
 import br.com.syrxmc.bot.core.listeners.events.DynamicEventHandler;
 import br.com.syrxmc.bot.data.Config;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
@@ -24,15 +27,11 @@ import static net.dv8tion.jda.api.utils.cache.CacheFlag.*;
 @Getter
 public class SyrxCore {
 
-    private final JDA jda;
-
-    private final Config config;
-
-    private final CommandManager commandManager;
-
-    private final EventWaiter eventWaiter = new EventWaiter();
-
     private final static Logger logger = LoggerFactory.getLogger(SyrxCore.class);
+    private final JDA jda;
+    private final Config config;
+    private final CommandManager commandManager;
+    private final EventWaiter eventWaiter = new EventWaiter();
 
     public SyrxCore(Config config) {
         this.config = config;
@@ -40,7 +39,7 @@ public class SyrxCore {
         commandManager = new CommandManager(jda);
     }
 
-    public void inicialize() {
+    public void initialize() {
         commandManager.publicCommands();
         DynamicEventHandler.getInstance().addListener(new CommandListener(this));
         DynamicEventHandler.getInstance().addListener(new MemberJoinListener(config));
@@ -49,26 +48,32 @@ public class SyrxCore {
     }
 
     private JDA createBot() {
-        JDABuilder builder = JDABuilder.create(config.getToken(),
+
+        JDABuilder builder = JDABuilder.create(
+                config.getToken(),
                         GatewayIntent.MESSAGE_CONTENT,
                         GatewayIntent.GUILD_PRESENCES,
-                        GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                        GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES,
-                        GatewayIntent.GUILD_MODERATION, GatewayIntent.GUILD_EMOJIS_AND_STICKERS)
-                .setChunkingFilter(ChunkingFilter.ALL)
+                        GatewayIntent.GUILD_MESSAGES,
+                        GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                        GatewayIntent.GUILD_MEMBERS,
+                        GatewayIntent.GUILD_VOICE_STATES,
+                        GatewayIntent.GUILD_MODERATION,
+                        GatewayIntent.GUILD_EMOJIS_AND_STICKERS
+                ).setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter)
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
-                .setActivity(Activity.customStatus("SryxMC - Sempre trazendo o melhor para a sua diversão!"));
+                .setActivity(Activity.customStatus("RogMarket - Selling Cash"));
 
         return builder.build();
+
     }
 
-    public Guild getGuildById(String guildId){
+    public Guild getGuildById(String guildId) {
         return jda.getGuildById(guildId);
     }
 
-    public <T extends Channel> T getChannelById(Class<T> type, String channelId){
+    public <T extends Channel> T getChannelById(Class<T> type, String channelId) {
         return jda.getChannelById(type, channelId);
     }
 

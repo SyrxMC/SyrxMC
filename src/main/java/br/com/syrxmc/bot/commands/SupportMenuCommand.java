@@ -13,7 +13,7 @@ import java.awt.*;
 //@RegisterCommand
 public class SupportMenuCommand extends SlashCommand {
 
-    public SupportMenuCommand(){
+    public SupportMenuCommand() {
         super("support", "Support Menu", true);
         addPermissions(Permission.ADMINISTRATOR);
     }
@@ -21,8 +21,8 @@ public class SupportMenuCommand extends SlashCommand {
     @Override
     public void execute(SlashCommandEvent event) throws Exception {
         event.ignoreReplyWait();
-        Button ticket = Button.of(ButtonStyle.SECONDARY,"support:ticket", "Ticket", Emoji.fromUnicode("❓"));
-        Button suggestion = Button.of(ButtonStyle.SECONDARY,"support:suggestion", "Sugestão", Emoji.fromUnicode("\uD83D\uDCA1"));
+        Button ticket = Button.of(ButtonStyle.SECONDARY, "support:ticket", "Ticket", Emoji.fromUnicode("❓"));
+        Button suggestion = Button.of(ButtonStyle.SECONDARY, "support:suggestion", "Sugestão", Emoji.fromUnicode("\uD83D\uDCA1"));
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Bem vindo ao SAP (Serviço de Atendimento ao Player)");

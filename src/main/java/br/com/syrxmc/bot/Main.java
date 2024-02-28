@@ -15,32 +15,35 @@ import java.io.IOException;
 @Getter
 public class Main {
 
+    private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     @Getter
     private static Cash cash;
+
     @Getter
-    private static  DataManager<Cash> cashManager;
-    private final static Logger logger = LoggerFactory.getLogger(Main.class);
+    private static DataManager<Cash> cashManager;
 
     @Getter
     private static SyrxCore syrxCore;
 
     public static void main(String[] args) throws IOException {
+
         logger.info("Iniciando o bot...");
+
         DataManager<Config> configDataManager = new DataManager<>("config.json", Config::new).create();
+
         cashManager = new DataManager<>("cashTickets.json", Cash::new).create();
 
         cash = cashManager.get();
 
         syrxCore = new SyrxCore(configDataManager.get());
 
-
-        syrxCore.inicialize();
+        syrxCore.initialize();
     }
-
 
     @SneakyThrows
-    public static void reloadConfig(){
+    public static void reloadConfig() {
         cashManager = new DataManager<>("cashTickets.json", Cash::new).create();
     }
+
 }

@@ -39,25 +39,37 @@ public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEv
                 }
             }
         }
+
         event.getInteraction().deferReply().complete().deleteOriginal().queue();
-        TextChannel createdChannel = event.getGuild().getCategoryById(config.getCashCategoryId()).createTextChannel(
-                        "INTERMÉDIO-" + event.getMember().getEffectiveName())
-                .addMemberPermissionOverride(event.getMember().getIdLong(), ALLOWED_PERMISSIONS, DENIED_PERMISSIONS).complete();
+
+        TextChannel createdChannel = event.getGuild().getCategoryById(config.getCashCategoryId())
+                .createTextChannel("INTERMÉDIO-" + event.getMember().getEffectiveName())
+                .addMemberPermissionOverride(event.getMember().getIdLong(), ALLOWED_PERMISSIONS, DENIED_PERMISSIONS)
+                .complete();
 
 
         try {
-            cash.getTickets().computeIfAbsent(event.getMember().getId(), s -> new ArrayList<>())
-                    .add(new Cash.Ticket(event.getMember().getId(), createdChannel.getId(), Cash.TicketType.INTERMEDIO));
+
+            cash.getTickets()
+                    .computeIfAbsent(event.getMember().getId(), s -> new ArrayList<>())
+                    .add(new Cash.Ticket(
+                            event.getMember().getId(),
+                            createdChannel.getId(),
+                            Cash.TicketType.INTERMEDIO)
+                    );
+
             Main.getCashManager().save(cash);
             Main.reloadConfig();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         event.getGuild().getChannelById(TextChannel.class, createdChannel.getId()).sendMessage(config.getTicketOpenMessage()
                 .replace("{user}", event.getMember().getAsMention())
                 .replace("{staff-role}", String.join(", ", config.getCasherIds()))
         ).queue();
+
     }
+
 }

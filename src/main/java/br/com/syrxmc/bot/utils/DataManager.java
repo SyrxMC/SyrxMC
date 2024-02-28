@@ -21,16 +21,10 @@ public class DataManager<T> {
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DataManager.class);
-
-
-    private T config;
-
-    private File file;
-
     private final String fileName;
-
     private final Supplier<T> supplier;
-
+    private T config;
+    private File file;
 
     public DataManager<T> create() throws IOException {
         File file = new File(this.fileName);

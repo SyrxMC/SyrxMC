@@ -5,7 +5,10 @@ import br.com.syrxmc.bot.core.SyrxCore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
@@ -21,52 +24,52 @@ public class SlashCommandEvent {
 
     private final SlashCommandInteractionEvent event;
 
-    public ReplyCallbackAction reply(String message){
+    public ReplyCallbackAction reply(String message) {
         return event.reply(message);
     }
 
-    public ReplyCallbackAction reply(String message, Object... format){
-      return  event.replyFormat(message, format);
+    public ReplyCallbackAction reply(String message, Object... format) {
+        return event.replyFormat(message, format);
     }
 
-    public ReplyCallbackAction reply(Collection<? extends LayoutComponent> components){
+    public ReplyCallbackAction reply(Collection<? extends LayoutComponent> components) {
         return event.replyComponents(components);
     }
 
-    public String getStringOption(String name){
+    public String getStringOption(String name) {
         return event.getOption(name).getAsString();
     }
 
-    public ReplyCallbackAction reply(MessageEmbed message){
-       return event.replyEmbeds(message);
+    public ReplyCallbackAction reply(MessageEmbed message) {
+        return event.replyEmbeds(message);
     }
 
-    public ReplyCallbackAction defer(){
-       return event.deferReply();
+    public ReplyCallbackAction defer() {
+        return event.deferReply();
     }
 
-    public void ignoreReplyWait(){
+    public void ignoreReplyWait() {
         event.deferReply().complete().deleteOriginal().queue();
     }
 
 
-    public Guild getGuild(){
+    public Guild getGuild() {
         return event.getGuild();
     }
 
-    public User getAuthor(){
+    public User getAuthor() {
         return event.getUser();
     }
 
-    public Member getMember(){
+    public Member getMember() {
         return event.getMember();
     }
 
-    public JDA getJda(){
+    public JDA getJda() {
         return event.getJDA();
     }
 
-    public MessageChannel getChannel(){
+    public MessageChannel getChannel() {
         return event.getMessageChannel();
     }
 
