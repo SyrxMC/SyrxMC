@@ -26,15 +26,15 @@ public class CashMenuCommand extends SlashCommand {
         EmbedBuilder builder = new EmbedBuilder();
 
         builder.setTitle("Cash");
-        builder.setDescription("Selecione abaixo a opção desejada");
-        builder.setFooter("Cuidado com vendas não autorizadas de terceiros!");
+        builder.setDescription("Select the desired option below");
+        builder.setFooter("Beware of unauthorized third-party sales!");
         builder.setColor(PRIMARY_COLOR);
         builder.setImage("https://amplologistica.com.br/wp-content/uploads/2018/02/ecommerce-subway-studio-malaysia.gif");
 
         event.getChannel().sendMessageEmbeds(builder.build()).addActionRow(
-                Button.secondary("cashMenu",    "QUERO CASHAR").withEmoji(Emoji.fromUnicode("\uD83D\uDCB0")),
-                Button.secondary("intermedio",  "INTERMÉDIO").withEmoji(Emoji.fromUnicode("\uD83E\uDD1D")),
-                Button.secondary("gold",        "QUERO GOLD").withEmoji(Emoji.fromUnicode("\uD83E\uDE99"))
+                Button.secondary("cashMenu",    "WANT CASH").withEmoji(Emoji.fromUnicode("\uD83D\uDCB0")),
+                Button.secondary("intermedio",  "INTERMEDIATE").withEmoji(Emoji.fromUnicode("\uD83E\uDD1D")),
+                Button.secondary("gold",        "WANT GOLD").withEmoji(Emoji.fromUnicode("\uD83E\uDE99"))
         ).queue();
     }
 }

@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'application'
 }
 
 group = 'br.com.syrxmc.bot'
@@ -16,6 +17,10 @@ repositories {
         url 'https://jitpack.io'
     }
     mavenCentral()
+}
+
+application{
+    mainClass = "br.com.syrxmc.bot.Main"
 }
 
 dependencies {

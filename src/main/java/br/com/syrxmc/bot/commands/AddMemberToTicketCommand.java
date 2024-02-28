@@ -15,9 +15,9 @@ import static br.com.syrxmc.bot.core.listeners.PermissionsConstants.DENIED_PERMI
 public class AddMemberToTicketCommand extends SlashCommand {
 
     public AddMemberToTicketCommand() {
-        super("add", "Adicionar um usuário ao ticket");
+        super("add", "Add a user to a ticket");
         addPermissions(Permission.ADMINISTRATOR);
-        addOption(new OptionData(OptionType.USER, "user", "Usuário para adicionar no canal", true));
+        addOption(new OptionData(OptionType.USER, "user", "User to add to the ticket", true));
     }
 
     @Override
@@ -29,6 +29,6 @@ public class AddMemberToTicketCommand extends SlashCommand {
         event.getTextChannel().getManager()
                 .putMemberPermissionOverride(user.getIdLong(), ALLOWED_PERMISSIONS, DENIED_PERMISSIONS).queue();
 
-        event.getChannel().sendMessageFormat("%s adicionado ao canal.", user.getAsMention()).queue();
+        event.getChannel().sendMessageFormat("%s added to the channel.", user.getAsMention()).queue();
     }
 }
