@@ -27,6 +27,7 @@ public class CloseCommand extends SlashCommand {
         super("fechar", "Fechar a salas de tickets");
         addSubcommand(new CloseCash());
         addSubcommand(new CloseIntermedio());
+        addSubcommand(new CloseGold());
         addPermissions(Permission.ADMINISTRATOR);
     }
 
@@ -34,18 +35,17 @@ public class CloseCommand extends SlashCommand {
 
         try {
 
-            WriteChannelBackup.writeFile(channel, "/tickets/cash");
+            WriteChannelBackup.writeFile(channel, "/tickets/" + ticket.type().name());
 
             if (!isEmpty(price)) {
                 if (!isNull(ticket)) {
-                    logs.sendMessageFormat("Venda realizada para <@%s> da sala de %s em CASH, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
+                    logs.sendMessageFormat("Venda realizada para <@%s> de **%s** em **CASH**, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
                 } else {
                     author.getUser().openPrivateChannel().complete().sendMessage("Deu um erro ao enviar a mensagem para o canal de logs favor contatar os devs.").queue();
                 }
             }
 
             if (!isNull(ticket)) {
-
                 List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
 
                 tickets.remove(ticket);
@@ -58,8 +58,8 @@ public class CloseCommand extends SlashCommand {
                 author.getUser().openPrivateChannel().complete().sendMessage("Deu um erro ao enviar a mensagem para o canal de logs favor contatar os devs.").queue();
             }
 
-            channel.sendMessage("Encerrando ticket em 10s.").queue();
-            channel.delete().queueAfter(10, TimeUnit.SECONDS);
+            channel.sendMessage("Encerrando ticket em 5s.").queue();
+            channel.delete().queueAfter(5, TimeUnit.SECONDS);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,7 +86,7 @@ public class CloseCommand extends SlashCommand {
 
             TextChannel textChannel = event.getChannel().asTextChannel();
 
-            Cash cash = Main.getCash();
+            Cash cash = Main.getCashManager().get();
 
             Cash.Ticket ticket = null;
 
@@ -99,12 +99,12 @@ public class CloseCommand extends SlashCommand {
                 }
             }
 
-            if (!Cash.TicketType.CASH.equals(ticket.type())) {
+            if (!isNull(ticket) && !Cash.TicketType.CASH.equals(ticket.type())) {
                 event.reply("O canal que você está tentando fechar não é de cash").setEphemeral(true).queue();
                 return;
             }
 
-            event.deferReply().complete().deleteOriginal().queue();
+            event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
             closeChannel(ticket, cash, price, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getCashLogsId()), textChannel, event.getMember());
         }
     }
@@ -120,7 +120,7 @@ public class CloseCommand extends SlashCommand {
 
             TextChannel textChannel = event.getChannel().asTextChannel();
 
-            Cash cash = Main.getCash();
+            Cash cash = Main.getCashManager().get();
 
             Cash.Ticket ticket = null;
 
@@ -133,12 +133,46 @@ public class CloseCommand extends SlashCommand {
                 }
             }
 
-            if (!Cash.TicketType.INTERMEDIO.equals(ticket.type())) {
+            if (!isNull(ticket) && !Cash.TicketType.INTERMEDIO.equals(ticket.type())) {
                 event.reply("O canal que você está tentando fechar não é de intermédio").setEphemeral(true).queue();
                 return;
             }
 
-            event.deferReply().complete().deleteOriginal().queue();
+            event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
+            closeChannel(ticket, cash, null, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getCashLogsId()), textChannel, event.getMember());
+        }
+    }
+
+    public static class CloseGold extends SlashSubcommand {
+
+        public CloseGold() {
+            super("gold", "Fechar a sala de gold");
+        }
+
+        @Override
+        public void execute(SlashCommandInteractionEvent event) {
+
+            TextChannel textChannel = event.getChannel().asTextChannel();
+
+            Cash cash = Main.getCashManager().get();
+
+            Cash.Ticket ticket = null;
+
+            for (List<Cash.Ticket> value : cash.getTickets().values()) {
+                for (Cash.Ticket ticket1 : value) {
+                    if (ticket1.channelId().equals(textChannel.getId())) {
+                        ticket = ticket1;
+                        break;
+                    }
+                }
+            }
+
+            if (!isNull(ticket) && !Cash.TicketType.GOLD.equals(ticket.type())) {
+                event.reply("O canal que você está tentando fechar não é de gold").setEphemeral(true).queue();
+                return;
+            }
+
+            event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
             closeChannel(ticket, cash, null, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getCashLogsId()), textChannel, event.getMember());
         }
     }

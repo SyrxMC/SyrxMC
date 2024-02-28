@@ -3,8 +3,8 @@ package br.com.syrxmc.bot.core;
 import br.com.syrxmc.bot.core.command.CommandManager;
 import br.com.syrxmc.bot.core.listeners.CashButtonListener;
 import br.com.syrxmc.bot.core.listeners.CommandListener;
+import br.com.syrxmc.bot.core.listeners.GoldButtonListener;
 import br.com.syrxmc.bot.core.listeners.IntermedioButtonListener;
-import br.com.syrxmc.bot.core.listeners.MemberJoinListener;
 import br.com.syrxmc.bot.core.listeners.events.DynamicEventHandler;
 import br.com.syrxmc.bot.data.Config;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
@@ -42,9 +42,9 @@ public class SyrxCore {
     public void initialize() {
         commandManager.publicCommands();
         DynamicEventHandler.getInstance().addListener(new CommandListener(this));
-        DynamicEventHandler.getInstance().addListener(new MemberJoinListener(config));
         DynamicEventHandler.getInstance().addListener(new CashButtonListener(config));
         DynamicEventHandler.getInstance().addListener(new IntermedioButtonListener(config));
+        DynamicEventHandler.getInstance().addListener(new GoldButtonListener(config));
     }
 
     private JDA createBot() {
@@ -63,7 +63,7 @@ public class SyrxCore {
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter)
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
-                .setActivity(Activity.customStatus("RogMarket - Selling Cash"));
+                .setActivity(Activity.customStatus("ROGUE MARKET - Selling Cash"));
 
         return builder.build();
 

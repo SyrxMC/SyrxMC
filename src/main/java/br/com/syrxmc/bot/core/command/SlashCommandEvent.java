@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
@@ -40,6 +41,14 @@ public class SlashCommandEvent {
         return event.getOption(name).getAsString();
     }
 
+    public Member getMemberOption(String name) {
+        return event.getOption(name).getAsMember();
+    }
+
+    public User getUserOption(String name) {
+        return event.getOption(name).getAsUser();
+    }
+
     public ReplyCallbackAction reply(MessageEmbed message) {
         return event.replyEmbeds(message);
     }
@@ -49,7 +58,7 @@ public class SlashCommandEvent {
     }
 
     public void ignoreReplyWait() {
-        event.deferReply().complete().deleteOriginal().queue();
+        event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
     }
 
 
@@ -71,6 +80,10 @@ public class SlashCommandEvent {
 
     public MessageChannel getChannel() {
         return event.getMessageChannel();
+    }
+
+    public TextChannel getTextChannel() {
+        return event.getChannel().asTextChannel();
     }
 
 }

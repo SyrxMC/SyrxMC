@@ -4,6 +4,7 @@ import br.com.syrxmc.bot.Main;
 import br.com.syrxmc.bot.core.listeners.events.DynamicHandler;
 import br.com.syrxmc.bot.data.Cash;
 import br.com.syrxmc.bot.data.Config;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 import static br.com.syrxmc.bot.core.listeners.PermissionsConstants.ALLOWED_PERMISSIONS;
 import static br.com.syrxmc.bot.core.listeners.PermissionsConstants.DENIED_PERMISSIONS;
+import static br.com.syrxmc.bot.utils.UtilsStatics.PRIMARY_COLOR;
 
 public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEvent> {
 
@@ -40,7 +42,7 @@ public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEv
             }
         }
 
-        event.getInteraction().deferReply().complete().deleteOriginal().queue();
+        event.getInteraction().deferReply().setEphemeral(true).complete().deleteOriginal().queue();
 
         TextChannel createdChannel = event.getGuild().getCategoryById(config.getCashCategoryId())
                 .createTextChannel("INTERMÉDIO-" + event.getMember().getEffectiveName())
@@ -65,10 +67,20 @@ public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEv
             e.printStackTrace();
         }
 
-        event.getGuild().getChannelById(TextChannel.class, createdChannel.getId()).sendMessage(config.getTicketOpenMessage()
+        String message = config.getIntermedioOpenMessage()
                 .replace("{user}", event.getMember().getAsMention())
-                .replace("{staff-role}", String.join(", ", config.getCasherIds()))
-        ).queue();
+                .replace("{staff-role}", String.join(", ", config.getCasherIds()));
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Intermédio");
+        builder.setColor(PRIMARY_COLOR);
+        builder.setFooter("Clique para expandir a imagem.");
+        builder.setImage("https://cdn.discordapp.com/attachments/1212225628221210624/1212225829355126814/imagem_plugin_143833bc-6e72-49e6-a7d1-625ac19c74bc.gif?ex=65f11047&is=65de9b47&hm=e2d12aed1628f43bae3bf1f25cba48082878f0f1e84a68e7bcd8629c1bf7c22f&");
+
+        TextChannel textChannel = event.getGuild().getChannelById(TextChannel.class, createdChannel.getId());
+
+        textChannel.sendMessageEmbeds(builder.build()).queue();
+        textChannel.sendMessage(message).queue();
 
     }
 

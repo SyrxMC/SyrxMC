@@ -23,6 +23,10 @@ public class Config {
 
     private String ticketOpenMessage;
 
+    private String intermedioOpenMessage;
+
+    private String goldOpenMessage;
+
     private String cashLogsId;
 
 }

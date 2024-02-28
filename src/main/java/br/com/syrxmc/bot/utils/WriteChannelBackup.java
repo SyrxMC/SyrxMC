@@ -29,7 +29,7 @@ public class WriteChannelBackup {
     @SneakyThrows
     public static void writeFile(TextChannel channel, String path) throws IOException {
 
-        if (channel.getIterableHistory().isEmpty()) {
+        if (channel.getIterableHistory().stream().findAny().isEmpty()) {
             return;
         }
 
