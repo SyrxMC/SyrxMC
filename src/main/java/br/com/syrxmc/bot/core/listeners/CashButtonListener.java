@@ -39,7 +39,7 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
                 ).findFirst();
 
                 if (ticket.isPresent()) {
-                    event.reply("You already have an open cash room!").setEphemeral(true).queue();
+                    event.reply("Você já tem uma sala de cash aberta!").setEphemeral(true).queue();
                     return;
                 }
 
@@ -72,10 +72,10 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
                 .replace("{channel}", "<#" + config.getInfoChannel() + ">");
 
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("CASH Store");
+        builder.setTitle("Compra de CASH");
         builder.setColor(PRIMARY_COLOR);
-        builder.setFooter("Click to expand the image.");
-        builder.setImage("https://cdn.discordapp.com/attachments/337988003161047040/1212432239871270992/image.png?ex=65f1d083&is=65df5b83&hm=0599590b7fd546984b3ebc0dbef4ec9d010920fc9aab38049ea89277479d7f2d&");
+        builder.setFooter("Clique para expandir a imagem.");
+        builder.setImage("https://cdn.discordapp.com/attachments/1169072762002874399/1212130320124477461/image.png?ex=65f0b754&is=65de4254&hm=b4e0f4ceb071be949f5c1774520eb38d6e45df764ded9d8069f33af0e58aa6d1&");
 
         TextChannel textChannel = event.getGuild().getChannelById(TextChannel.class, createdChannel.getId());
 

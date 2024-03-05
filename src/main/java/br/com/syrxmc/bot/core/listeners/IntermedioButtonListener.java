@@ -36,7 +36,7 @@ public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEv
                 Optional<Cash.Ticket> ticket = cash.getTickets().get(event.getMember().getId()).stream().filter(ticket1 -> Cash.TicketType.INTERMEDIO.equals(ticket1.type())).findFirst();
 
                 if (ticket.isPresent()) {
-                    event.reply("You already have an open intermediate channel.").setEphemeral(true).queue();
+                    event.reply("Você já tem uma sala de cash aberta!").setEphemeral(true).queue();
                     return;
                 }
             }
@@ -45,7 +45,7 @@ public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEv
         event.getInteraction().deferReply().setEphemeral(true).complete().deleteOriginal().queue();
 
         TextChannel createdChannel = event.getGuild().getCategoryById(config.getCashCategoryId())
-                .createTextChannel("INTERMEDIATE-" + event.getMember().getEffectiveName())
+                .createTextChannel("INTERMÉDIO-" + event.getMember().getEffectiveName())
                 .addMemberPermissionOverride(event.getMember().getIdLong(), ALLOWED_PERMISSIONS, DENIED_PERMISSIONS)
                 .complete();
 
@@ -72,9 +72,9 @@ public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEv
                 .replace("{staff-role}", String.join(", ", config.getCasherIds()));
 
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("Intermediate");
+        builder.setTitle("Intermédio");
         builder.setColor(PRIMARY_COLOR);
-        builder.setFooter("Click to expand the image.");
+        builder.setFooter("Clique para expandir a imagem.");
         builder.setImage("https://cdn.discordapp.com/attachments/1212225628221210624/1212225829355126814/imagem_plugin_143833bc-6e72-49e6-a7d1-625ac19c74bc.gif?ex=65f11047&is=65de9b47&hm=e2d12aed1628f43bae3bf1f25cba48082878f0f1e84a68e7bcd8629c1bf7c22f&");
 
         TextChannel textChannel = event.getGuild().getChannelById(TextChannel.class, createdChannel.getId());

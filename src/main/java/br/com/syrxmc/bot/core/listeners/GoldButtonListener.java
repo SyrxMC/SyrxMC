@@ -36,7 +36,7 @@ public class GoldButtonListener extends DynamicHandler<ButtonInteractionEvent> {
                 Optional<Cash.Ticket> ticket = cash.getTickets().get(event.getMember().getId()).stream().filter(ticket1 -> Cash.TicketType.GOLD.equals(ticket1.type())).findFirst();
 
                 if (ticket.isPresent()) {
-                    event.reply("You already have an open gold channel.").setEphemeral(true).queue();
+                    event.reply("Você já tem uma sala de gold aberta!").setEphemeral(true).queue();
                     return;
                 }
             }
@@ -45,7 +45,7 @@ public class GoldButtonListener extends DynamicHandler<ButtonInteractionEvent> {
         event.getInteraction().deferReply().setEphemeral(true).complete().deleteOriginal().queue();
 
         TextChannel createdChannel = event.getGuild().getCategoryById(config.getCashCategoryId())
-                .createTextChannel("GOLD-" + event.getMember().getEffectiveName())
+                .createTextChannel("gold-" + event.getMember().getEffectiveName())
                 .addMemberPermissionOverride(event.getMember().getIdLong(), ALLOWED_PERMISSIONS, DENIED_PERMISSIONS)
                 .complete();
 
@@ -72,9 +72,9 @@ public class GoldButtonListener extends DynamicHandler<ButtonInteractionEvent> {
                 .replace("{staff-role}", String.join(", ", config.getCasherIds()));
 
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("GOLD Store");
+        builder.setTitle("Compra de GOLD");
         builder.setColor(PRIMARY_COLOR);
-        builder.setFooter("Click to expand the image.");
+        builder.setFooter("Clique para expandir a imagem.");
         builder.setImage("https://usagif.com/wp-content/uploads/gifs/raining-money-12.gif");
 
         TextChannel textChannel = event.getGuild().getChannelById(TextChannel.class, createdChannel.getId());
