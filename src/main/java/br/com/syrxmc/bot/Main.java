@@ -3,6 +3,7 @@ package br.com.syrxmc.bot;
 import br.com.syrxmc.bot.core.SyrxCore;
 import br.com.syrxmc.bot.data.Cash;
 import br.com.syrxmc.bot.data.Config;
+import br.com.syrxmc.bot.data.GoldStock;
 import br.com.syrxmc.bot.utils.DataManager;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -18,10 +19,16 @@ public class Main {
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     @Getter
+    private static DataManager<Cash> cashManager;
+
+    @Getter
     private static Cash cash;
 
     @Getter
-    private static DataManager<Cash> cashManager;
+    private static DataManager<GoldStock> goldStockDataManager;
+
+    @Getter
+    private static GoldStock goldStock;
 
     @Getter
     private static SyrxCore syrxCore;
@@ -33,8 +40,10 @@ public class Main {
         DataManager<Config> configDataManager = new DataManager<>("config.json", Config::new).create();
 
         cashManager = new DataManager<>("cashTickets.json", Cash::new).create();
-
         cash = cashManager.get();
+
+        goldStockDataManager = new DataManager<>("goldStock.json", GoldStock::new).create();
+        goldStock = goldStockDataManager.get();
 
         syrxCore = new SyrxCore(configDataManager.get());
 
