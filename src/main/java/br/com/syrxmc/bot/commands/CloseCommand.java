@@ -78,7 +78,7 @@ public class CloseCommand extends SlashCommand {
 
             tickets.remove(ticket);
             cash.getTickets().put(ticket.creatorId(), tickets);
-            goldStock.removeStock(server, price);
+            goldStock.removeStock(channel.getGuild(), server, price);
 
             Main.getGoldStockDataManager().save(goldStock);
             Main.getCashManager().save(cash);

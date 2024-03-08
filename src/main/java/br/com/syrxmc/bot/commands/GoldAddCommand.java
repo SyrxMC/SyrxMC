@@ -21,12 +21,13 @@ public class GoldAddCommand extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) throws Exception {
+
         String server = event.getStringOption("servidor").toUpperCase();
         long quantity = event.getLongOption("quantidade");
 
 
         GoldStock goldStock = Main.getGoldStock();
-        goldStock.addStock(server, quantity);
+        goldStock.addStock(event.getGuild(), server, quantity);
 
         Main.getGoldStockDataManager().save(goldStock);
         Main.reloadConfig();
@@ -37,13 +38,6 @@ public class GoldAddCommand extends SlashCommand {
 
         event.getTextChannel().sendMessageEmbeds(goldStock.display()).queue();
 
-
-        if(goldStock.getLastGoldStockMessage() != null){
-
-//            event.getGuild().getTextChannelById("").editMessageEmbedsById(goldStock.getLastGoldStockMessage(), );
-        }
-
-        //Todo: atulizar a mensagem da quantidade de gold
     }
 
 }

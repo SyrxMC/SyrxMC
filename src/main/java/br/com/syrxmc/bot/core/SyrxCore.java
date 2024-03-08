@@ -27,7 +27,7 @@ import static net.dv8tion.jda.api.utils.cache.CacheFlag.*;
 @Getter
 public class SyrxCore {
 
-    private final static Logger logger = LoggerFactory.getLogger(SyrxCore.class);
+    public final static Logger logger = LoggerFactory.getLogger(SyrxCore.class);
     private final JDA jda;
     private final Config config;
     private final CommandManager commandManager;

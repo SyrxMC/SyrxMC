@@ -7,6 +7,8 @@ import java.util.List;
 @Data
 public class Config {
 
+    private String menuChannel;
+
     private String token;
 
     private String cashCategory;

@@ -1,5 +1,6 @@
 package br.com.syrxmc.bot.commands;
 
+import br.com.syrxmc.bot.Main;
 import br.com.syrxmc.bot.core.command.SlashCommand;
 import br.com.syrxmc.bot.core.command.SlashCommandEvent;
 import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
@@ -36,5 +37,6 @@ public class CashMenuCommand extends SlashCommand {
                 Button.secondary("intermedio",  "INTERMÉDIO").withEmoji(Emoji.fromUnicode("\uD83E\uDD1D")),
                 Button.secondary("gold",        "QUERO GOLD").withEmoji(Emoji.fromUnicode("\uD83E\uDE99"))
         ).queue();
+
     }
 }
