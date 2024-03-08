@@ -1,8 +1,13 @@
 package br.com.syrxmc.bot.data;
 
 import lombok.Data;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.util.HashMap;
+
+import static br.com.syrxmc.bot.utils.Utils.convertToShortScale;
+import static br.com.syrxmc.bot.utils.UtilsStatics.PRIMARY_COLOR;
 
 @Data
 public class GoldStock {
@@ -23,6 +28,17 @@ public class GoldStock {
 
     public void removeStock(String server, Long quantity) {
         GoldStock.put(server, Math.max(0, getGoldStock(server) - quantity));
+    }
+
+
+    public MessageEmbed display(){
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setColor(PRIMARY_COLOR);
+
+        getGoldStock().forEach((s, aLong) -> {
+                embedBuilder.addField(s, "Quantidade: **" + convertToShortScale(aLong) + "**", false);
+        });
+        return embedBuilder.build();
     }
 
 }

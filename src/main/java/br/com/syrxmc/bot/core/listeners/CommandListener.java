@@ -6,10 +6,14 @@ import br.com.syrxmc.bot.core.command.SlashCommandEvent;
 import br.com.syrxmc.bot.core.command.SlashSubcommand;
 import br.com.syrxmc.bot.core.listeners.events.DynamicHandler;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommandListener extends DynamicHandler<SlashCommandInteractionEvent> {
 
     private final SyrxCore syrxCore;
+
+    private final static Logger logger = LoggerFactory.getLogger(CommandListener.class);
 
     public CommandListener(SyrxCore syrxCore) {
         super(event -> true);
@@ -47,6 +51,7 @@ public class CommandListener extends DynamicHandler<SlashCommandInteractionEvent
             try {
                 command.execute(new SlashCommandEvent(event));
             } catch (Exception e) {
+                logger.error("Houve um erro ao executar o comando: {}", command.getName(), e);
                 event.reply("An error occurred: " + e.getMessage()).setEphemeral(true).queue();
             }
 
