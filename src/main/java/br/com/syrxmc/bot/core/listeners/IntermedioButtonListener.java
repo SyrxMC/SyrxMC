@@ -75,7 +75,7 @@ public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEv
         builder.setTitle("Intermédio");
         builder.setColor(PRIMARY_COLOR);
         builder.setFooter("Clique para expandir a imagem.");
-        builder.setImage("https://cdn.discordapp.com/attachments/1212225628221210624/1212225829355126814/imagem_plugin_143833bc-6e72-49e6-a7d1-625ac19c74bc.gif?ex=65f11047&is=65de9b47&hm=e2d12aed1628f43bae3bf1f25cba48082878f0f1e84a68e7bcd8629c1bf7c22f&");
+        builder.setImage("https://cdn.discordapp.com/attachments/1169072762002874399/1214925277696888853/imagem_plugin_143833bc-6e72-49e6-a7d1-625ac19c74bc.gif?ex=65fae256&is=65e86d56&hm=9d899f9043e79db963278cb97180e131f1adbaa74232fc4f4d9dbc594e1ca615&");
 
         TextChannel textChannel = event.getGuild().getChannelById(TextChannel.class, createdChannel.getId());
 

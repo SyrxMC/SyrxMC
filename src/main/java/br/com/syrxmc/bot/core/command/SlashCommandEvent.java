@@ -41,6 +41,10 @@ public class SlashCommandEvent {
         return event.getOption(name).getAsString();
     }
 
+    public long getLongOption(String name) {
+        return event.getOption(name).getAsLong();
+    }
+
     public Member getMemberOption(String name) {
         return event.getOption(name).getAsMember();
     }

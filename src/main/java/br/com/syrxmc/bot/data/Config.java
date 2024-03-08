@@ -29,4 +29,6 @@ public class Config {
 
     private String cashLogsId;
 
+    private String goldLogsId;
+
 }

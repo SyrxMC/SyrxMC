@@ -53,6 +53,10 @@ public class Main {
     @SneakyThrows
     public static void reloadConfig() {
         cashManager = new DataManager<>("cashTickets.json", Cash::new).create();
+        cash = cashManager.get();
+
+        goldStockDataManager = new DataManager<>("goldStock.json", GoldStock::new).create();
+        goldStock = goldStockDataManager.get();
     }
 
 }

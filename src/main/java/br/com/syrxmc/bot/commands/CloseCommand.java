@@ -6,6 +6,7 @@ import br.com.syrxmc.bot.core.command.SlashCommandEvent;
 import br.com.syrxmc.bot.core.command.SlashSubcommand;
 import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
 import br.com.syrxmc.bot.data.Cash;
+import br.com.syrxmc.bot.data.GoldStock;
 import br.com.syrxmc.bot.utils.WriteChannelBackup;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -38,25 +39,50 @@ public class CloseCommand extends SlashCommand {
             WriteChannelBackup.writeFile(channel, "/tickets/" + ticket.type().name());
 
             if (!isEmpty(price)) {
-                if (!isNull(ticket)) {
+                if (!Cash.TicketType.GOLD.equals(ticket.type())) {
                     logs.sendMessageFormat("Venda realizada para <@%s> de **%s** em **CASH**, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
                 } else {
-                    author.getUser().openPrivateChannel().complete().sendMessage("Deu um erro ao enviar a mensagem para o canal de logs favor contatar os devs.").queue();
+                    logs.sendMessageFormat("Venda realizada para <@%s> de **%s** de **GOLD**, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
                 }
             }
 
-            if (!isNull(ticket)) {
-                List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
+            List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
 
-                tickets.remove(ticket);
-                cash.getTickets().put(ticket.creatorId(), tickets);
+            tickets.remove(ticket);
+            cash.getTickets().put(ticket.creatorId(), tickets);
 
-                Main.getCashManager().save(cash);
-                Main.reloadConfig();
+            Main.getCashManager().save(cash);
+            Main.reloadConfig();
 
-            } else {
-                author.getUser().openPrivateChannel().complete().sendMessage("Deu um erro ao enviar a mensagem para o canal de logs favor contatar os devs.").queue();
+            channel.sendMessage("Encerrando ticket em 5s.").queue();
+            channel.delete().queueAfter(5, TimeUnit.SECONDS);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void closeChannel(String server, Cash.Ticket ticket, Cash cash, long price, TextChannel logs, TextChannel channel, Member author) {
+
+        try {
+
+            WriteChannelBackup.writeFile(channel, "/tickets/" + ticket.type().name());
+
+            if (price != 0) {
+                logs.sendMessageFormat("Venda realizada para <@%s> de **%s** de **GOLD**, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
             }
+
+            List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
+            GoldStock goldStock = Main.getGoldStock();
+
+            tickets.remove(ticket);
+            cash.getTickets().put(ticket.creatorId(), tickets);
+            goldStock.removeStock(server, price);
+
+            Main.getGoldStockDataManager().save(goldStock);
+            Main.getCashManager().save(cash);
+            Main.reloadConfig();
 
             channel.sendMessage("Encerrando ticket em 5s.").queue();
             channel.delete().queueAfter(5, TimeUnit.SECONDS);
@@ -147,10 +173,22 @@ public class CloseCommand extends SlashCommand {
 
         public CloseGold() {
             super("gold", "Fechar a sala de gold");
+            addOption(new OptionData(OptionType.STRING, "servidor", "Servidor da venda", true));
+            addOption(new OptionData(OptionType.INTEGER, "valor", "Valor de gold vendida", true));
         }
 
         @Override
         public void execute(SlashCommandInteractionEvent event) {
+
+            String server = event.getOption("server").getAsString();
+            long valor = event.getOption("valor").getAsLong();
+
+            GoldStock stock = Main.getGoldStockDataManager().get();
+
+            if (!stock.getGoldStock().containsKey(server)) {
+                event.reply("Não tem estoque para esse servidor").setEphemeral(true).queue();
+                return;
+            }
 
             TextChannel textChannel = event.getChannel().asTextChannel();
 
@@ -173,7 +211,7 @@ public class CloseCommand extends SlashCommand {
             }
 
             event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
-            closeChannel(ticket, cash, null, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getCashLogsId()), textChannel, event.getMember());
+            closeChannel(server, ticket, cash, valor, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getGoldLogsId()), textChannel, event.getMember());
         }
     }
 
