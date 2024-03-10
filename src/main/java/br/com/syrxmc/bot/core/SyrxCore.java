@@ -1,10 +1,7 @@
 package br.com.syrxmc.bot.core;
 
 import br.com.syrxmc.bot.core.command.CommandManager;
-import br.com.syrxmc.bot.core.listeners.CashButtonListener;
-import br.com.syrxmc.bot.core.listeners.CommandListener;
-import br.com.syrxmc.bot.core.listeners.GoldButtonListener;
-import br.com.syrxmc.bot.core.listeners.IntermedioButtonListener;
+import br.com.syrxmc.bot.core.listeners.*;
 import br.com.syrxmc.bot.core.listeners.events.DynamicEventHandler;
 import br.com.syrxmc.bot.data.Config;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
@@ -45,6 +42,7 @@ public class SyrxCore {
         DynamicEventHandler.getInstance().addListener(new CashButtonListener(config));
         DynamicEventHandler.getInstance().addListener(new IntermedioButtonListener(config));
         DynamicEventHandler.getInstance().addListener(new GoldButtonListener(config));
+        DynamicEventHandler.getInstance().addListener(new TicketSelfButtonListener(config));
     }
 
     private JDA createBot() {

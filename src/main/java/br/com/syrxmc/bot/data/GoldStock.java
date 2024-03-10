@@ -1,6 +1,7 @@
 package br.com.syrxmc.bot.data;
 
 import br.com.syrxmc.bot.Main;
+import br.com.syrxmc.bot.commands.CashMenuCommand;
 import br.com.syrxmc.bot.core.SyrxCore;
 import br.com.syrxmc.bot.core.listeners.gold.GoldStockUpdate;
 import lombok.Data;
@@ -36,12 +37,23 @@ public class GoldStock {
                 channel.deleteMessageById(stock.getLastGoldStockMessage()).queue();
         }
 
-        if(channel == null)
+        if(channel == null) {
             SyrxCore.logger.info("Não foi possível mandar a mensagem de atualização de estoque, porque o menu não foi encontrado.");
-        else
-            channel.sendMessageEmbeds(stock.display()).queue(message -> stock.lastGoldStockMessage = message.getId());
+            return;
+        }
+
+        if(stock.getLastMenuMessage() != null){
+            channel.deleteMessageById(stock.getLastMenuMessage()).queue();
+        }
+
+        CashMenuCommand.generateMenu(channel, stock.GoldStock.values().stream().allMatch(el -> el != 0), message -> {
+            stock.lastMenuMessage = message.getId();
+        });
+
+        channel.sendMessageEmbeds(stock.display()).queue(message -> stock.lastGoldStockMessage = message.getId());
 
         Main.getGoldStockDataManager().save(stock);
+
     };
 
     public Long getGoldStock(String server) {
