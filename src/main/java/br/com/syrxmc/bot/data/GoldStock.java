@@ -94,7 +94,7 @@ public class GoldStock {
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(PRIMARY_COLOR);
-        embedBuilder.setTitle("Gold Disponível");
+        embedBuilder.setTitle("Gold disponível por bloco");
 
         getGoldStock().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach((entry) ->
                 embedBuilder.addField(entry.getKey(), "Quantidade: **" + convertToShortScale(entry.getValue()) + "**", false)

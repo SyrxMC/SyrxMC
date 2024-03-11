@@ -5,6 +5,7 @@ import br.com.syrxmc.bot.core.command.SlashCommand;
 import br.com.syrxmc.bot.core.command.SlashCommandEvent;
 import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
 import br.com.syrxmc.bot.data.GoldStock;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -17,6 +18,7 @@ public class GoldRemoveCommand extends SlashCommand {
         super("removegold", "Remove o gold");
         addOption(new OptionData(OptionType.STRING, "servidor", "Servidor do gold", true));
         addOption(new OptionData(OptionType.INTEGER, "quantidade", "Quantidade de gold", true));
+        addPermissions(Permission.ADMINISTRATOR);
     }
 
     @Override
