@@ -7,10 +7,13 @@ import br.com.syrxmc.bot.core.listeners.gold.GoldStockUpdate;
 import lombok.Data;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static br.com.syrxmc.bot.utils.Utils.convertToShortScale;
@@ -51,8 +54,9 @@ public class GoldStock {
             stock.setLastMenuMessage(message.getId());
         });
 
-        channel.sendMessage("<@&" + channel.getGuild().getId() + ">").queue(message ->
-                message.delete().queueAfter(2, TimeUnit.SECONDS));
+        channel.sendMessage("@everyone").setAllowedMentions(Set.of(Message.MentionType.EVERYONE))
+                .queue(message -> message.delete().queueAfter(2, TimeUnit.SECONDS));
+
         channel.sendMessageEmbeds(stock.display()).queue(message -> {
             stock.setLastGoldStockMessage(message.getId());
             Main.getGoldStockDataManager().save(stock);
@@ -90,10 +94,11 @@ public class GoldStock {
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(PRIMARY_COLOR);
+        embedBuilder.setTitle("Gold Disponível");
 
-        getGoldStock().forEach((s, aLong) -> {
-            embedBuilder.addField(s, "Quantidade: **" + convertToShortScale(aLong) + "**", false);
-        });
+        getGoldStock().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach((entry) ->
+                embedBuilder.addField(entry.getKey(), "Quantidade: **" + convertToShortScale(entry.getValue()) + "**", false)
+        );
 
         return embedBuilder.build();
     }
