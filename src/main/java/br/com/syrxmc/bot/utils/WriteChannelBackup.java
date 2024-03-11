@@ -1,7 +1,6 @@
 package br.com.syrxmc.bot.utils;
 
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +17,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @AllArgsConstructor
 public class WriteChannelBackup {
@@ -26,56 +26,60 @@ public class WriteChannelBackup {
 
     private final static Logger logger = LoggerFactory.getLogger(WriteChannelBackup.class);
 
-    @SneakyThrows
-    public static void writeFile(TextChannel channel, String path) throws IOException {
+    public static void writeFile(TextChannel channel, String path) {
 
-        if (channel.getIterableHistory().stream().filter(message -> !message.getAuthor().isBot()).findAny().isEmpty()) {
-            return;
+
+        try {
+            List<Message> messageStream = channel.getHistory().getRetrievedHistory().stream().filter(message -> !message.getAuthor().isBot()).toList();
+            if (messageStream.isEmpty()) {
+                return;
+            }
+
+            String channelPath = "files" + fileSeparator + String.format(path + fileSeparator + "%1$s", channel.getName() + "-" + instantToString(channel.getTimeCreated().toInstant())) + fileSeparator;
+
+            File f = new File(channelPath);
+
+            if (!f.exists())
+                if (f.mkdirs())
+                    logger.info("File created...");
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(String.format(channelPath + "%1$s.txt", channel.getName() + "-" + instantToString(channel.getTimeCreated().toInstant()))));
+
+            channel.getIterableHistory().forEachAsync(message -> {
+
+                if (message.getAuthor().isBot())
+                    return false;
+
+                try {
+
+                    writer.write(String.format("[%1$s] - %2$s : %3$s",
+                            getFormat(message),
+                            getName(message),
+                            new String(getMessages(message, channelPath).getBytes(StandardCharsets.UTF_8)))
+                    );
+
+                    writer.newLine();
+
+                } catch (IOException e) {
+                    logger.error("Falha: ", e);
+                }
+
+                return true;
+
+            }).thenRun(() -> {
+
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        String channelPath = "files" + fileSeparator + String.format(path + fileSeparator + "%1$s", channel.getName() + "-" + instantToString(channel.getTimeCreated().toInstant())) + fileSeparator;
-
-        File f = new File(channelPath);
-
-
-        if (!f.exists())
-            if(f.mkdirs())
-                logger.info("File created...");
-
-        BufferedWriter writer = new BufferedWriter(new FileWriter(String.format(channelPath + "%1$s.txt", channel.getName() + "-" + instantToString(channel.getTimeCreated().toInstant()))));
-
-        channel.getIterableHistory().forEachAsync(message -> {
-
-            if (message.getAuthor().isBot())
-                return false;
-
-            try {
-
-                writer.write(String.format("[%1$s] - %2$s : %3$s",
-                        getFormat(message),
-                        getName(message),
-                        new String(getMessages(message, channelPath).getBytes(StandardCharsets.UTF_8)))
-                );
-
-                writer.newLine();
-
-            } catch (IOException e) {
-                logger.error("Falha: ", e);
-            }
-
-            return true;
-
-        }).thenRun(() -> {
-
-            try {
-                writer.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-        });
-
-
     }
 
     @NotNull

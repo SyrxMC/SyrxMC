@@ -43,6 +43,7 @@ public class CommandListener extends DynamicHandler<SlashCommandInteractionEvent
             try {
                 subcommand.execute(event);
             } catch (Exception e) {
+                logger.error("Houve um erro ao executar o comando: {}", command.getName(), e);
                 event.reply("An error occurred: " + e.getMessage()).setEphemeral(true).queue();
             }
 

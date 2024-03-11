@@ -4,7 +4,6 @@ import br.com.syrxmc.bot.Main;
 import br.com.syrxmc.bot.core.command.SlashCommand;
 import br.com.syrxmc.bot.core.command.SlashCommandEvent;
 import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
-import br.com.syrxmc.bot.data.GoldStock;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;

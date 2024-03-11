@@ -19,7 +19,7 @@ repositories {
     mavenCentral()
 }
 
-application{
+application {
     mainClass = "br.com.syrxmc.bot.Main"
 }
 

@@ -82,7 +82,7 @@ public class GoldButtonListener extends DynamicHandler<ButtonInteractionEvent> {
         TextChannel textChannel = event.getGuild().getChannelById(TextChannel.class, createdChannel.getId());
 
         textChannel.sendMessageEmbeds(builder.build()).addActionRow(
-                Button.danger("closeSelf","FECHAR TICKET").withEmoji(Emoji.fromUnicode("\u274C"))
+                Button.danger("closeSelf", "FECHAR TICKET").withEmoji(Emoji.fromUnicode("\u2716"))
         ).queue();
         textChannel.sendMessage(message).queue();
 

@@ -48,7 +48,7 @@ public class SyrxCore {
     private JDA createBot() {
 
         JDABuilder builder = JDABuilder.create(
-                config.getToken(),
+                        config.getToken(),
                         GatewayIntent.MESSAGE_CONTENT,
                         GatewayIntent.GUILD_PRESENCES,
                         GatewayIntent.GUILD_MESSAGES,

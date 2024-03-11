@@ -179,39 +179,43 @@ public class CloseCommand extends SlashCommand {
 
         @Override
         public void execute(SlashCommandInteractionEvent event) {
+            event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
 
-            String server = event.getOption("server").getAsString();
-            long valor = event.getOption("valor").getAsLong();
+            try {
+                String server = event.getOption("servidor").getAsString();
+                long valor = event.getOption("valor").getAsLong();
 
-            GoldStock stock = Main.getGoldStockDataManager().get();
+                GoldStock stock = Main.getGoldStockDataManager().get();
 
-            if (!stock.getGoldStock().containsKey(server)) {
-                event.reply("Não tem estoque para esse servidor").setEphemeral(true).queue();
-                return;
-            }
+                if (!stock.getGoldStock().containsKey(server)) {
+                    event.reply("Não tem estoque para esse servidor").setEphemeral(true).queue();
+                    return;
+                }
 
-            TextChannel textChannel = event.getChannel().asTextChannel();
+                TextChannel textChannel = event.getChannel().asTextChannel();
 
-            Cash cash = Main.getCashManager().get();
+                Cash cash = Main.getCashManager().get();
 
-            Cash.Ticket ticket = null;
+                Cash.Ticket ticket = null;
 
-            for (List<Cash.Ticket> value : cash.getTickets().values()) {
-                for (Cash.Ticket ticket1 : value) {
-                    if (ticket1.channelId().equals(textChannel.getId())) {
-                        ticket = ticket1;
-                        break;
+                for (List<Cash.Ticket> value : cash.getTickets().values()) {
+                    for (Cash.Ticket ticket1 : value) {
+                        if (ticket1.channelId().equals(textChannel.getId())) {
+                            ticket = ticket1;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (!isNull(ticket) && !Cash.TicketType.GOLD.equals(ticket.type())) {
-                event.reply("O canal que você está tentando fechar não é de gold").setEphemeral(true).queue();
-                return;
-            }
+                if (!isNull(ticket) && !Cash.TicketType.GOLD.equals(ticket.type())) {
+                    event.reply("O canal que você está tentando fechar não é de gold").setEphemeral(true).queue();
+                    return;
+                }
 
-            event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
-            closeChannel(server, ticket, cash, valor, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getGoldLogsId()), textChannel, event.getMember());
+                closeChannel(server, ticket, cash, valor, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getGoldLogsId()), textChannel, event.getMember());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

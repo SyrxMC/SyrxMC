@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import static br.com.syrxmc.bot.utils.Utils.convertToShortScale;
 import static br.com.syrxmc.bot.utils.UtilsStatics.PRIMARY_COLOR;
@@ -28,31 +29,35 @@ public class GoldStock {
 
         TextChannel channel = null;
 
-        if(Main.getSyrxCore().getConfig().getMenuChannel() != null){
+        if (Main.getSyrxCore().getConfig().getMenuChannel() != null) {
             channel = guild.getTextChannelById(Main.getSyrxCore().getConfig().getMenuChannel());
         }
 
-        if(stock.getLastGoldStockMessage() != null){
-            if(channel != null)
+        if (stock.getLastGoldStockMessage() != null) {
+            if (channel != null)
                 channel.deleteMessageById(stock.getLastGoldStockMessage()).queue();
         }
 
-        if(channel == null) {
+        if (channel == null) {
             SyrxCore.logger.info("Não foi possível mandar a mensagem de atualização de estoque, porque o menu não foi encontrado.");
             return;
         }
 
-        if(stock.getLastMenuMessage() != null){
+        if (stock.getLastMenuMessage() != null) {
             channel.deleteMessageById(stock.getLastMenuMessage()).queue();
         }
 
-        CashMenuCommand.generateMenu(channel, stock.GoldStock.values().stream().allMatch(el -> el != 0), message -> {
-            stock.lastMenuMessage = message.getId();
+        CashMenuCommand.generateMenu(channel, stock.GoldStock.values().stream().anyMatch(el -> el != 0), message -> {
+            stock.setLastMenuMessage(message.getId());
         });
 
-        channel.sendMessageEmbeds(stock.display()).queue(message -> stock.lastGoldStockMessage = message.getId());
-
-        Main.getGoldStockDataManager().save(stock);
+        channel.sendMessage("<@&" + channel.getGuild().getId() + ">").queue(message ->
+                message.delete().queueAfter(2, TimeUnit.SECONDS));
+        channel.sendMessageEmbeds(stock.display()).queue(message -> {
+            stock.setLastGoldStockMessage(message.getId());
+            Main.getGoldStockDataManager().save(stock);
+            Main.reloadConfig();
+        });
 
     };
 
@@ -66,7 +71,7 @@ public class GoldStock {
 
         GoldStock.put(server, getGoldStock(server) + quantity);
 
-        if(goldStockUpdate != null)
+        if (goldStockUpdate != null)
             goldStockUpdate.onUpdate(this, guild, server, quantity, lastQuantity, getGoldStock(server));
     }
 
@@ -76,18 +81,18 @@ public class GoldStock {
 
         GoldStock.put(server, Math.max(0, getGoldStock(server) - quantity));
 
-        if(goldStockUpdate != null)
+        if (goldStockUpdate != null)
             goldStockUpdate.onUpdate(this, guild, server, quantity, lastQuantity, getGoldStock(server));
     }
 
 
-    public MessageEmbed display(){
+    public MessageEmbed display() {
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(PRIMARY_COLOR);
 
         getGoldStock().forEach((s, aLong) -> {
-                embedBuilder.addField(s, "Quantidade: **" + convertToShortScale(aLong) + "**", false);
+            embedBuilder.addField(s, "Quantidade: **" + convertToShortScale(aLong) + "**", false);
         });
 
         return embedBuilder.build();

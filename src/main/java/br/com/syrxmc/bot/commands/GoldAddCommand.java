@@ -35,9 +35,6 @@ public class GoldAddCommand extends SlashCommand {
         GoldStock updated = Main.getGoldStock();
 
         event.reply("Foi adicionado **%s** de gold no bloco do **%s**. Saldo atual: ***%s*** - __**%s**__", convertToShortScale(quantity), server, convertToShortScale(updated.getGoldStock(server)), updated.getGoldStock(server)).queue();
-
-        event.getTextChannel().sendMessageEmbeds(goldStock.display()).queue();
-
     }
 
 }
