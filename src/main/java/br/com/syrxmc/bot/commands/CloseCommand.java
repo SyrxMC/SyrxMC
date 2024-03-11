@@ -70,7 +70,7 @@ public class CloseCommand extends SlashCommand {
             WriteChannelBackup.writeFile(channel, "/tickets/" + ticket.type().name());
 
             if (price != 0) {
-                logs.sendMessageFormat("Venda realizada para <@%s> de **%s** de **GOLD**, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
+                logs.sendMessageFormat("Venda realizada para <@%s> de **%s** de **GOLD**, por %s no server **%s**.", ticket.creatorId(), price, author.getAsMention(), server).queue();
             }
 
             List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
