@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
+import java.io.Serializable;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -54,8 +56,8 @@ public class GoldStock {
             stock.setLastMenuMessage(message.getId());
         });
 
-        channel.sendMessage("@everyone").setAllowedMentions(Set.of(Message.MentionType.EVERYONE))
-                .queue(message -> message.delete().queueAfter(2, TimeUnit.SECONDS));
+//        channel.sendMessage("@everyone").setAllowedMentions(Set.of(Message.MentionType.EVERYONE))
+//                .queue(message -> message.delete().queueAfter(2, TimeUnit.SECONDS));
 
         channel.sendMessageEmbeds(stock.display()).queue(message -> {
             stock.setLastGoldStockMessage(message.getId());
@@ -96,11 +98,16 @@ public class GoldStock {
         embedBuilder.setColor(PRIMARY_COLOR);
         embedBuilder.setTitle("Gold disponível por bloco");
 
-        getGoldStock().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach((entry) ->
+        getGoldStock().entrySet().stream().sorted(comparingByKey()).forEach((entry) ->
                 embedBuilder.addField(entry.getKey(), "Quantidade: **" + convertToShortScale(entry.getValue()) + "**", false)
         );
 
         return embedBuilder.build();
+    }
+
+    public static <K extends Comparable<? super K>, V> Comparator<Map.Entry<K, V>> comparingByKey() {
+        return (Comparator<Map.Entry<K, V>> & Serializable)
+                (c1, c2) -> c2.getKey().compareTo(c1.getKey());
     }
 
 }
