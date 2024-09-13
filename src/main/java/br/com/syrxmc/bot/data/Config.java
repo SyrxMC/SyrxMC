@@ -19,7 +19,7 @@ public class Config {
 
     private String greetingChannelId;
 
-    private String discordInvite;
+    private String inviteChannel;
 
     private String cashCategoryId;
 
@@ -32,5 +32,7 @@ public class Config {
     private String cashLogsId;
 
     private String goldLogsId;
+
+    private String image;
 
 }

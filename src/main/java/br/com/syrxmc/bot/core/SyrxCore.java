@@ -61,7 +61,7 @@ public class SyrxCore {
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter)
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
-                .setActivity(Activity.customStatus("ROGUE MARKET - Selling Cash"));
+                .setActivity(Activity.customStatus("DREAMSCAPE MARKET - Selling Cash"));
 
         return builder.build();
 

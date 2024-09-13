@@ -77,7 +77,7 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
         builder.setTitle("Compra de CASH");
         builder.setColor(PRIMARY_COLOR);
         builder.setFooter("Clique para expandir a imagem.");
-        builder.setImage("https://cdn.discordapp.com/attachments/963521417217986560/1214762517327511552/image.png?ex=65fa4ac1&is=65e7d5c1&hm=cd851a981719c583390539d8bad50f00657ec0f158fb46e37700e1307ae61a22&");
+        builder.setImage(config.getImage());
 
         TextChannel textChannel = event.getGuild().getChannelById(TextChannel.class, createdChannel.getId());
 

@@ -54,6 +54,7 @@ public class DataManager<T> {
     }
 
     public T get() {
+
         return config;
     }
 }

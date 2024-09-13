@@ -4,6 +4,7 @@ import br.com.syrxmc.bot.core.SyrxCore;
 import br.com.syrxmc.bot.data.Cash;
 import br.com.syrxmc.bot.data.Config;
 import br.com.syrxmc.bot.data.GoldStock;
+import br.com.syrxmc.bot.data.Invites;
 import br.com.syrxmc.bot.utils.DataManager;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -25,13 +26,21 @@ public class Main {
     private static Cash cash;
 
     @Getter
-    private static DataManager<GoldStock> goldStockDataManager;
+    private static SyrxCore syrxCore;
 
     @Getter
     private static GoldStock goldStock;
 
     @Getter
-    private static SyrxCore syrxCore;
+    private static Invites invites;
+
+    @Getter
+    private static  DataManager<Invites> invitesDataManager;
+
+    @Getter
+    private static DataManager<GoldStock> goldStockDataManager;
+
+
 
     public static void main(String[] args) throws IOException {
 
@@ -44,6 +53,9 @@ public class Main {
 
         goldStockDataManager = new DataManager<>("goldStock.json", GoldStock::new).create();
         goldStock = goldStockDataManager.get();
+
+        invitesDataManager = new DataManager<>("invites.json", Invites::new).create();
+        invites = invitesDataManager.get();
 
         syrxCore = new SyrxCore(configDataManager.get());
 
