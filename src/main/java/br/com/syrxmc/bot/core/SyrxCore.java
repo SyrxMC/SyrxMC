@@ -3,6 +3,7 @@ package br.com.syrxmc.bot.core;
 import br.com.syrxmc.bot.core.command.CommandManager;
 import br.com.syrxmc.bot.core.listeners.*;
 import br.com.syrxmc.bot.core.listeners.events.DynamicEventHandler;
+import br.com.syrxmc.bot.core.listeners.invite.InviteListener;
 import br.com.syrxmc.bot.data.Config;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import lombok.Getter;
@@ -11,9 +12,10 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.ChunkingFilter;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +49,16 @@ public class SyrxCore {
 
     private JDA createBot() {
 
+        RestAction.setPassContext(true);
+
+        RestAction.setDefaultFailure(ErrorResponseException.ignore(
+                RestAction.getDefaultFailure(),
+                ErrorResponse.UNKNOWN_MESSAGE
+        ));
+
         JDABuilder builder = JDABuilder.create(
                         config.getToken(),
+                        GatewayIntent.GUILD_INVITES,
                         GatewayIntent.MESSAGE_CONTENT,
                         GatewayIntent.GUILD_PRESENCES,
                         GatewayIntent.GUILD_MESSAGES,
@@ -57,9 +67,9 @@ public class SyrxCore {
                         GatewayIntent.GUILD_VOICE_STATES,
                         GatewayIntent.GUILD_MODERATION,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS
-                ).setChunkingFilter(ChunkingFilter.ALL)
-                .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter)
+                )
+                .setEventPassthrough(true)
+                .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter, new InviteListener())
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
                 .setActivity(Activity.customStatus("DREAMSCAPE MARKET - Selling Cash"));
 
