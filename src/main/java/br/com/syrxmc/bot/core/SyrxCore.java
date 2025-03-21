@@ -71,7 +71,7 @@ public class SyrxCore {
                 .setEventPassthrough(true)
                 .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter, new InviteListener())
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
-                .setActivity(Activity.customStatus("DREAMSCAPE MARKET - Selling Cash"));
+                .setActivity(Activity.customStatus("DREAM SCAPE SHOP - Selling Cash"));
 
         return builder.build();
 

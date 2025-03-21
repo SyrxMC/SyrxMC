@@ -49,7 +49,10 @@ public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEv
         TextChannel createdChannel = event.getGuild().getCategoryById(config.getCashCategoryId())
                 .createTextChannel("INTERMÉDIO-" + event.getMember().getEffectiveName())
                 .addMemberPermissionOverride(event.getMember().getIdLong(), ALLOWED_PERMISSIONS, DENIED_PERMISSIONS)
+                .addRolePermissionOverride(1314984080680419458L, ALLOWED_PERMISSIONS, DENIED_PERMISSIONS)
                 .complete();
+
+
 
 
         try {
