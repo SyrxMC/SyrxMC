@@ -3,7 +3,6 @@ package br.com.syrxmc.bot.core;
 import br.com.syrxmc.bot.core.command.CommandManager;
 import br.com.syrxmc.bot.core.listeners.*;
 import br.com.syrxmc.bot.core.listeners.events.DynamicEventHandler;
-import br.com.syrxmc.bot.core.listeners.invite.InviteListener;
 import br.com.syrxmc.bot.data.Config;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import lombok.Getter;
@@ -41,10 +40,6 @@ public class SyrxCore {
     public void initialize() {
         commandManager.publicCommands();
         DynamicEventHandler.getInstance().addListener(new CommandListener(this));
-        DynamicEventHandler.getInstance().addListener(new CashButtonListener(config));
-        DynamicEventHandler.getInstance().addListener(new IntermedioButtonListener(config));
-        DynamicEventHandler.getInstance().addListener(new GoldButtonListener(config));
-        DynamicEventHandler.getInstance().addListener(new TicketSelfButtonListener(config));
     }
 
     private JDA createBot() {
@@ -69,7 +64,7 @@ public class SyrxCore {
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS
                 )
                 .setEventPassthrough(true)
-                .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter, new InviteListener())
+                .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter)
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
                 .setActivity(Activity.customStatus("DREAM SCAPE SHOP - Selling Cash"));
 

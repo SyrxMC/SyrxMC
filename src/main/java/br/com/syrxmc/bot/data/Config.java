@@ -2,37 +2,13 @@ package br.com.syrxmc.bot.data;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class Config {
 
-    private String menuChannel;
-
     private String token;
 
-    private String cashCategory;
+    private String clientRoleId;
 
-    private String infoChannel;
-
-    private List<String> casherIds;
-
-    private String greetingChannelId;
-
-    private String inviteChannel;
-
-    private String cashCategoryId;
-
-    private String ticketOpenMessage;
-
-    private String intermedioOpenMessage;
-
-    private String goldOpenMessage;
-
-    private String cashLogsId;
-
-    private String goldLogsId;
-
-    private String image;
+    private String guildId;
 
 }

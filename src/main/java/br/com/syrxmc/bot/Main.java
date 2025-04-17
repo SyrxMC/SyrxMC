@@ -1,12 +1,10 @@
 package br.com.syrxmc.bot;
 
 import br.com.syrxmc.bot.core.SyrxCore;
-import br.com.syrxmc.bot.data.Cash;
+import br.com.syrxmc.bot.core.scheduler.ClientExpirationScheduler;
+import br.com.syrxmc.bot.data.Clients;
 import br.com.syrxmc.bot.data.Config;
-import br.com.syrxmc.bot.data.GoldStock;
-import br.com.syrxmc.bot.data.Invites;
 import br.com.syrxmc.bot.utils.DataManager;
-import br.com.syrxmc.bot.utils.LeadboardScheduler;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.quartz.*;
@@ -23,27 +21,13 @@ public class Main {
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     @Getter
-    private static DataManager<Cash> cashManager;
-
-    @Getter
-    private static Cash cash;
-
-    @Getter
     private static SyrxCore syrxCore;
 
     @Getter
-    private static GoldStock goldStock;
+    private static Clients clients;
 
     @Getter
-    private static Invites invites;
-
-    @Getter
-    private static  DataManager<Invites> invitesDataManager;
-
-    @Getter
-    private static DataManager<GoldStock> goldStockDataManager;
-
-
+    private static DataManager<Clients> clientsData;
 
     public static void main(String[] args) throws IOException, SchedulerException {
 
@@ -62,11 +46,11 @@ public class Main {
         Scheduler scheduler = shedFact.getScheduler();
         scheduler.start();
 
-        JobDetail job = JobBuilder.newJob(LeadboardScheduler.class)
+        JobDetail job = JobBuilder.newJob(ClientExpirationScheduler.class)
                 .build();
 
         Trigger trigger = TriggerBuilder.newTrigger()
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/5 * * * ?"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/2 * * * ?"))
                 .build();
 
         scheduler.scheduleJob(job, trigger);
@@ -78,14 +62,8 @@ public class Main {
     }
 
     public static void configs() throws IOException {
-        cashManager = new DataManager<>("cashTickets.json", Cash::new).create();
-        cash = cashManager.get();
-
-        goldStockDataManager = new DataManager<>("goldStock.json", GoldStock::new).create();
-        goldStock = goldStockDataManager.get();
-
-        invitesDataManager = new DataManager<>("invites.json", Invites::new).create();
-        invites = invitesDataManager.get();
+        clientsData = new DataManager<>("client.json", Clients::new).create();
+        clients = clientsData.get();
     }
 
 }

@@ -41,4 +41,4 @@ bin/
 ### Bot Files ##
 /logs/
 
-config*.json
+config.json.old

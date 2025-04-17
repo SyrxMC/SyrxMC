@@ -18,7 +18,8 @@ public class DataManager<T> {
     private static final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .enable(SerializationFeature.INDENT_OUTPUT)
-            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .findAndRegisterModules();
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DataManager.class);
     private final String fileName;
