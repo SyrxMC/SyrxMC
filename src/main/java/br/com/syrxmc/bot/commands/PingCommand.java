@@ -16,7 +16,6 @@ public class PingCommand extends SlashCommand {
         event.reply("Pong! %s ms", event.getJda().getGatewayPing())
                 .setEphemeral(true)
                 .queue();
-
     }
 
 }

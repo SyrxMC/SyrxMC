@@ -35,11 +35,15 @@ public class SyrxCore {
         this.config = config;
         this.jda = createBot();
         commandManager = new CommandManager(jda);
+
+        System.out.println(jda.getSelfUser().getName());
     }
 
     public void initialize() {
         commandManager.publicCommands();
         DynamicEventHandler.getInstance().addListener(new CommandListener(this));
+        DynamicEventHandler.getInstance().addListener(new WelcomeEventListener());
+        DynamicEventHandler.getInstance().addListener(new ButtonsEventListener());
     }
 
     private JDA createBot() {
@@ -66,7 +70,7 @@ public class SyrxCore {
                 .setEventPassthrough(true)
                 .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter)
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
-                .setActivity(Activity.customStatus("DREAM SCAPE SHOP - Selling Cash"));
+                .setActivity(Activity.playing("in Blade Community"));
 
         return builder.build();
 

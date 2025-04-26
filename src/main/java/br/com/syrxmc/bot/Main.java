@@ -1,14 +1,11 @@
 package br.com.syrxmc.bot;
 
 import br.com.syrxmc.bot.core.SyrxCore;
-import br.com.syrxmc.bot.core.scheduler.ClientExpirationScheduler;
-import br.com.syrxmc.bot.data.Clients;
 import br.com.syrxmc.bot.data.Config;
 import br.com.syrxmc.bot.utils.DataManager;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +20,6 @@ public class Main {
     @Getter
     private static SyrxCore syrxCore;
 
-    @Getter
-    private static Clients clients;
-
-    @Getter
-    private static DataManager<Clients> clientsData;
-
     public static void main(String[] args) throws IOException, SchedulerException {
 
         logger.info("Iniciando o bot...");
@@ -41,19 +32,6 @@ public class Main {
 
         syrxCore.initialize();
 
-        SchedulerFactory shedFact = new StdSchedulerFactory();
-
-        Scheduler scheduler = shedFact.getScheduler();
-        scheduler.start();
-
-        JobDetail job = JobBuilder.newJob(ClientExpirationScheduler.class)
-                .build();
-
-        Trigger trigger = TriggerBuilder.newTrigger()
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/2 * * * ?"))
-                .build();
-
-        scheduler.scheduleJob(job, trigger);
     }
 
     @SneakyThrows
@@ -62,8 +40,6 @@ public class Main {
     }
 
     public static void configs() throws IOException {
-        clientsData = new DataManager<>("client.json", Clients::new).create();
-        clients = clientsData.get();
     }
 
 }
