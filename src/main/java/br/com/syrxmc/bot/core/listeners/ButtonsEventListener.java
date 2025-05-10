@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ButtonsEventListener extends DynamicHandler<ButtonInteractionEvent> {
 
@@ -21,10 +22,12 @@ public class ButtonsEventListener extends DynamicHandler<ButtonInteractionEvent>
 
             if (!event.getMember().getRoles().contains(roleById)) {
                 event.getGuild().addRoleToMember(event.getMember(), roleById).queue();
-                event.reply("{role} has been add".replace("{role}", roleById.getName())).setEphemeral(true).queue();
+                event.reply("{role} has been add".replace("{role}", roleById.getName())).setEphemeral(true)
+                        .complete().deleteOriginal().queueAfter(10, TimeUnit.SECONDS);
             } else {
                 event.getGuild().removeRoleFromMember(event.getMember(), roleById).queue();
-                event.reply("{role} has been removed".replace("{role}", roleById.getName())).setEphemeral(true).queue();
+                event.reply("{role} has been removed".replace("{role}", roleById.getName())).setEphemeral(true)
+                        .complete().deleteOriginal().queueAfter(10, TimeUnit.SECONDS);
             }
 
             rolesId.stream().filter(s -> !s.equals(roleById.getId()))
