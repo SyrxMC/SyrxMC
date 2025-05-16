@@ -25,7 +25,7 @@ public class ServerAnnouncement extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) throws Exception {
-        event.reply("Começanado...").setEphemeral(true).queue();
+        event.reply("Começando...").setEphemeral(true).queue();
         new Announcement(event.getStringOption("tipo"), event.getAuthor().getId(), event.getChannel().getId(), Main.getSyrxCore().getEventWaiter())
                 .startInteraction();
 

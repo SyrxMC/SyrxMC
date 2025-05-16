@@ -41,7 +41,7 @@ public class Announcement {
                     String message = event.getMessage().getContentDisplay();
                     askIfHaveAttachments(message);
 
-                }, 10, TimeUnit.SECONDS, () -> {
+                }, 2, TimeUnit.MINUTES, () -> {
                     Main.getSyrxCore().getChannelById(TextChannel.class, channelId).sendMessage("Tempo de espera excedido!")
                             .complete().delete().queueAfter(10, TimeUnit.SECONDS);
                 });
@@ -61,6 +61,9 @@ public class Announcement {
                             event.getMessage().getContentStripped().equalsIgnoreCase("n")) {
                         showMessagePreview(message, new ArrayList<>());
                     }
+                }, 2, TimeUnit.MINUTES, () -> {
+                    Main.getSyrxCore().getChannelById(TextChannel.class, channelId).sendMessage("Tempo de espera excedido!")
+                            .complete().delete().queueAfter(10, TimeUnit.SECONDS);
                 }
         );
     }
@@ -79,7 +82,7 @@ public class Announcement {
                     event.getChannel().sendMessage("Arquivos registrados").complete().delete().queueAfter(10, TimeUnit.SECONDS);
 
                     showMessagePreview(message, files);
-                }, 1, TimeUnit.MINUTES, () -> {
+                }, 2, TimeUnit.MINUTES, () -> {
                     Main.getSyrxCore().getChannelById(TextChannel.class, channelId).sendMessage("Tempo de espera excedido!")
                             .complete().delete().queueAfter(10, TimeUnit.SECONDS);
                 }
@@ -135,7 +138,7 @@ public class Announcement {
                         event.getChannel().sendMessage("Anuncio cancelado!").complete().delete().queueAfter(10, TimeUnit.SECONDS);
                     }
                 },
-                1, TimeUnit.MINUTES, () -> {
+                2, TimeUnit.MINUTES, () -> {
                     Main.getSyrxCore().getChannelById(TextChannel.class, channelId).sendMessage("Tempo de espera excedido!")
                             .complete().delete().queueAfter(10, TimeUnit.SECONDS);
                 }

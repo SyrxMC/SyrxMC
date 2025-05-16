@@ -18,7 +18,6 @@ public class RemoveOrAddRoleButtonListener extends DynamicHandler<ButtonInteract
 
     @Override
     public void onEvent(ButtonInteractionEvent event) {
-        System.out.println(event.getButton().getId());
         if(!types.contains(event.getButton().getId())){
             return;
         }
