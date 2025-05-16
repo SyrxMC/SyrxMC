@@ -11,4 +11,12 @@ public class Config {
 
     private String guildId;
 
+    private String serverRole;
+
+    private String goldRole;
+
+    private String announcementRole;
+
+    private String announcementChannel;
+
 }

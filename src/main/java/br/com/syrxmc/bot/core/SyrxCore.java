@@ -43,7 +43,7 @@ public class SyrxCore {
         commandManager.publicCommands();
         DynamicEventHandler.getInstance().addListener(new CommandListener(this));
         DynamicEventHandler.getInstance().addListener(new WelcomeEventListener());
-        DynamicEventHandler.getInstance().addListener(new ButtonsEventListener());
+        DynamicEventHandler.getInstance().addListener(new RemoveOrAddRoleButtonListener());
     }
 
     private JDA createBot() {
