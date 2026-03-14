@@ -38,7 +38,7 @@ public class IntermedioButtonListener extends DynamicHandler<ButtonInteractionEv
                 Optional<Cash.Ticket> ticket = cash.getTickets().get(event.getMember().getId()).stream().filter(ticket1 -> Cash.TicketType.INTERMEDIO.equals(ticket1.type())).findFirst();
 
                 if (ticket.isPresent()) {
-                    event.reply("Você já tem uma sala de cash aberta!").setEphemeral(true).queue();
+                    event.reply("Você já tem uma sala de intermédio aberta!").setEphemeral(true).queue();
                     return;
                 }
             }

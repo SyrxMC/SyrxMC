@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class TicketSelfButtonListener extends DynamicHandler<ButtonInteractionEvent> {
@@ -26,35 +27,32 @@ public class TicketSelfButtonListener extends DynamicHandler<ButtonInteractionEv
         try {
             event.deferReply().complete().deleteOriginal().queue();
 
-            List<Message> list = event.getChannel().getHistory().retrievePast(5).complete().stream().filter(message -> !message.getAuthor().isBot()).toList();
+            List<Message> nonBotMessages = event.getChannel().getHistory()
+                    .retrievePast(5).complete().stream()
+                    .filter(message -> !message.getAuthor().isBot())
+                    .toList();
 
-            if (!list.isEmpty()) {
-                event.getGuildChannel().editMessageEmbedsById(event.getInteraction().getMessageId(), event.getMessage().getEmbeds())
+            if (!nonBotMessages.isEmpty()) {
+                event.getGuildChannel()
+                        .editMessageEmbedsById(event.getInteraction().getMessageId(), event.getMessage().getEmbeds())
                         .setReplace(true).queue();
-                event.getChannel().sendMessage("Você não pode apagar mais esse ticket. Entre em contato com alguém da staff para fecha-lo").queue();
+                event.getChannel().sendMessage("Você não pode fechar este ticket pois já há mensagens de atendimento. Entre em contato com a staff para fechá-lo.").queue();
                 return;
             }
 
             Cash cash = Main.getCash();
+            Optional<Cash.Ticket> ticketOpt = cash.findByChannelId(event.getChannel().getId());
 
-            Cash.Ticket ticket = null;
-
-            for (List<Cash.Ticket> value : cash.getTickets().values()) {
-                for (Cash.Ticket ticket1 : value) {
-                    if (ticket1.channelId().equals(event.getChannel().getId())) {
-                        ticket = ticket1;
-                        break;
-                    }
-                }
+            if (ticketOpt.isEmpty()) {
+                event.getChannel().sendMessage("Ticket não encontrado. Entre em contato com a staff.").queue();
+                return;
             }
+
+            Cash.Ticket ticket = ticketOpt.get();
 
             WriteChannelBackup.writeFile(event.getChannel().asTextChannel(), "/tickets/" + ticket.type().name());
 
-            List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
-
-            tickets.remove(ticket);
-            cash.getTickets().put(ticket.creatorId(), tickets);
-
+            cash.removeTicket(ticket);
             Main.getCashManager().save(cash);
             Main.reloadConfig();
 

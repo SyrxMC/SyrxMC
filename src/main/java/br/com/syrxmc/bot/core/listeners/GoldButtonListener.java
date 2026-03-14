@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 
-import static br.com.syrxmc.bot.core.listeners.PermissionsConstants.ALLOWED_PERMISSIONS;
-import static br.com.syrxmc.bot.core.listeners.PermissionsConstants.DENIED_PERMISSIONS;
+import static br.com.syrxmc.bot.core.listeners.PermissionsConstants.*;
 import static br.com.syrxmc.bot.utils.UtilsStatics.PRIMARY_COLOR;
 
 public class GoldButtonListener extends DynamicHandler<ButtonInteractionEvent> {
@@ -46,14 +45,16 @@ public class GoldButtonListener extends DynamicHandler<ButtonInteractionEvent> {
 
         event.getInteraction().deferReply().setEphemeral(true).complete().deleteOriginal().queue();
 
+
+        long goldRoleId = parseRoleId(config.getGoldId(), 1462099448753688658L);
         TextChannel createdChannel = event.getGuild().getCategoryById(config.getCashCategoryId())
                 .createTextChannel("gold-" + event.getMember().getEffectiveName())
                 .addMemberPermissionOverride(event.getMember().getIdLong(), ALLOWED_PERMISSIONS, DENIED_PERMISSIONS)
+                .addRolePermissionOverride(goldRoleId, ALLOWED_STAFF, new ArrayList<>())
                 .complete();
 
 
         try {
-
             cash.getTickets()
                     .computeIfAbsent(event.getMember().getId(), s -> new ArrayList<>())
                     .add(new Cash.Ticket(
@@ -71,7 +72,7 @@ public class GoldButtonListener extends DynamicHandler<ButtonInteractionEvent> {
 
         String message = config.getGoldOpenMessage()
                 .replace("{user}", event.getMember().getAsMention())
-                .replace("{staff-role}", String.join(", ", config.getCasherIds()));
+                .replace("{staff-role}",config.getGoldId());
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Compra de GOLD");
@@ -86,6 +87,15 @@ public class GoldButtonListener extends DynamicHandler<ButtonInteractionEvent> {
         ).queue();
         textChannel.sendMessage(message).queue();
 
+    }
+
+    private static long parseRoleId(String roleId, long fallback) {
+        if (roleId == null || roleId.isBlank()) return fallback;
+        try {
+            return Long.parseLong(roleId);
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
     }
 
 }

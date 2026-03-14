@@ -7,10 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +22,7 @@ public class DynamicEventHandler implements EventListener {
 
     private static DynamicEventHandler instance;
     private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(2);
-    private final Set<DynamicHandler<?>> handlers = Collections.synchronizedSet(new LinkedHashSet<>());
+    private final Set<DynamicHandler<?>> handlers = new CopyOnWriteArraySet<>();
 
     public static DynamicEventHandler getInstance() {
         if (instance == null) {
@@ -62,21 +60,19 @@ public class DynamicEventHandler implements EventListener {
 
     @Override
     public void onEvent(@NotNull GenericEvent event) {
-        try {
-            synchronized (handlers) {
-                Iterator<DynamicHandler<?>> iterator = handlers.stream().iterator();
-
-                while (iterator.hasNext()) {
-                    DynamicHandler<?> next = iterator.next();
-                    if (next != null) {
-                        if (next.validateEvent(event) && !next.isPersist()) {
-                            handlers.remove(next);
-                        }
+        for (DynamicHandler<?> next : handlers) {
+            try {
+                if (next != null && next.validateEvent(event)) {
+                    if (!next.isPersist()) {
+                        // Remoção segura em coleção concorrente
+                        handlers.remove(next);
                     }
+                    // Para o processamento de outros handlers para o mesmo evento para evitar múltiplas respostas à mesma interação
+                    break;
                 }
+            } catch (Exception e) {
+                logger.error("Erro ao processar evento {}", event.getClass().getSimpleName(), e);
             }
-        } catch (Exception e) {
-            logger.error("Erro ao remover evento", e);
         }
     }
 

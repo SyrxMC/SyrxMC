@@ -17,6 +17,8 @@ public class Config {
 
     private List<String> casherIds;
 
+    private String goldId;
+
     private String greetingChannelId;
 
     private String inviteChannel;
@@ -34,5 +36,8 @@ public class Config {
     private String goldLogsId;
 
     private String image;
+
+    // Cargo de staff que pode usar comandos de staff (opcional)
+    private String staffRoleId;
 
 }

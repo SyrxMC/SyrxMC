@@ -8,7 +8,6 @@ import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
 import br.com.syrxmc.bot.data.Cash;
 import br.com.syrxmc.bot.data.GoldStock;
 import br.com.syrxmc.bot.utils.TicketCloser;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -17,14 +16,14 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.Optional;
 
 @RegisterCommand
-public class CloseCommand extends SlashCommand {
+public class CloseStaffCommand extends SlashCommand {
 
-    public CloseCommand() {
-        super("fechar", "Fechar a sala de tickets");
+    public CloseStaffCommand() {
+        super("fechar-staff", "Fechar a sala de tickets (staff)");
         addSubcommand(new CloseCash());
         addSubcommand(new CloseIntermedio());
         addSubcommand(new CloseGold());
-        addPermissions(Permission.MANAGE_CHANNEL);
+        addRequiredRoles("1352639335039762514");
     }
 
     @Override

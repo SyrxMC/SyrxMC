@@ -2,6 +2,7 @@ package br.com.syrxmc.bot;
 
 import br.com.syrxmc.bot.core.SyrxCore;
 import br.com.syrxmc.bot.data.Cash;
+import br.com.syrxmc.bot.data.CashDaily;
 import br.com.syrxmc.bot.data.Config;
 import br.com.syrxmc.bot.data.GoldStock;
 import br.com.syrxmc.bot.data.Invites;
@@ -42,6 +43,12 @@ public class Main {
 
     @Getter
     private static DataManager<GoldStock> goldStockDataManager;
+
+    @Getter
+    private static DataManager<CashDaily> cashDailyManager;
+
+    @Getter
+    private static CashDaily cashDaily;
 
 
 
@@ -86,6 +93,9 @@ public class Main {
 
         invitesDataManager = new DataManager<>("invites.json", Invites::new).create();
         invites = invitesDataManager.get();
+
+        cashDailyManager = new DataManager<>("cashDaily.json", CashDaily::new).create();
+        cashDaily = cashDailyManager.get();
     }
 
 }

@@ -17,6 +17,7 @@ public abstract class SlashCommand {
     private final boolean isGuildOnly;
     private final List<OptionData> options;
     private final List<Permission> permissions;
+    private final List<String> requiredRoleIds;
 
     @Getter
     private final Map<String, SlashSubcommand> subcommands;
@@ -28,6 +29,7 @@ public abstract class SlashCommand {
         this.options = new ArrayList<>();
         this.subcommands = new HashMap<>();
         this.permissions = new ArrayList<>();
+        this.requiredRoleIds = new ArrayList<>();
     }
 
     public SlashCommand(String name, String description, boolean isGuildOnly) {
@@ -37,11 +39,21 @@ public abstract class SlashCommand {
         this.options = new ArrayList<>();
         this.subcommands = new HashMap<>();
         this.permissions = new ArrayList<>();
+        this.requiredRoleIds = new ArrayList<>();
     }
 
 
     public void addPermissions(Permission... permissions) {
         this.permissions.addAll(List.of(permissions));
+    }
+
+    public void addRequiredRoles(String... roleIds) {
+        if (roleIds == null) return;
+        for (String id : roleIds) {
+            if (id != null && !id.isBlank()) {
+                this.requiredRoleIds.add(id);
+            }
+        }
     }
 
     public void addSubcommand(SlashSubcommand subcommand) {

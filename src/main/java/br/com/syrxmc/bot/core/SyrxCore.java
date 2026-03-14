@@ -45,6 +45,9 @@ public class SyrxCore {
         DynamicEventHandler.getInstance().addListener(new IntermedioButtonListener(config));
         DynamicEventHandler.getInstance().addListener(new GoldButtonListener(config));
         DynamicEventHandler.getInstance().addListener(new TicketSelfButtonListener(config));
+        DynamicEventHandler.getInstance().addListener(new CashTicketButtonListener());
+        DynamicEventHandler.getInstance().addListener(new ChannelDeleteListener());
+        DynamicEventHandler.getInstance().addListener(new ReadyListener());
     }
 
     private JDA createBot() {
