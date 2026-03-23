@@ -82,9 +82,17 @@ public class InviteListener extends ListenerAdapter {
             String inviteCode = null;
             try (Response response = httpClient.newCall(request).execute()) {
                 if (response.isSuccessful() && response.body() != null) {
-                    DataObject dataObject = DataObject.fromJson(response.body().string());
-                    logger.info("Discord member search response: {}", dataObject);
-                    inviteCode = dataObject.getArray("members").getObject(0).getString("source_invite_code");
+                    String responseBody = response.body().string();
+                    DataObject dataObject = DataObject.fromJson(responseBody);
+                    logger.debug("Discord member search response: {}", dataObject);
+                    
+                    if (!dataObject.getArray("members").isEmpty()) {
+                        inviteCode = dataObject.getArray("members").getObject(0).getString("source_invite_code", null);
+                    } else {
+                        logger.info("No member search result for user {} (maybe left already or API delay).", user.getId());
+                    }
+                } else {
+                    logger.warn("Discord member search failed with status {}: {}", response.code(), response.message());
                 }
             } catch (Exception e) {
                 logger.error("Error fetching invite code for user {}", user.getId(), e);
@@ -99,7 +107,7 @@ public class InviteListener extends ListenerAdapter {
             } catch (Exception e) {
                 logger.error("Error recording invite join for user {}", user.getId(), e);
             }
-        }, 40, TimeUnit.SECONDS);
+        }, 2, TimeUnit.MINUTES);
     }
 
     @Override
