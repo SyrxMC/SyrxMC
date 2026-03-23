@@ -34,8 +34,10 @@ public class LeadboardScheduler implements Job {
 
         for (Invites.InviteData datum : data) {
             String userId = datum.getUserId();
-            long totalValue = datum.getCount();
-            userTotalValues.put(userId, userTotalValues.getOrDefault(userId, 0L) + totalValue);
+            Long count = datum.getCount();
+            if (userId != null && count != null) {
+                userTotalValues.put(userId, userTotalValues.getOrDefault(userId, 0L) + count);
+            }
         }
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -61,9 +63,19 @@ public class LeadboardScheduler implements Job {
         builder.setFooter("O ranking atualiza a cada 5 minutos.\n" +
                 "Caso você não esteja no ranking e queira saber quantas pessoas você convidou, utilize o comando /convidei, na sala #comandos \n");
         if (invites.getLastMessageId() != null) {
-            Main.getSyrxCore().getChannelById(TextChannel.class, config.getInviteChannel()).editMessageEmbedsById(invites.getLastMessageId(), builder.build()).queue();
+            TextChannel channel = Main.getSyrxCore().getChannelById(TextChannel.class, config.getInviteChannel());
+            if (channel == null) {
+                Main.logger.warn("Invite channel not found or not a TextChannel: " + config.getInviteChannel());
+                return;
+            }
+            channel.editMessageEmbedsById(invites.getLastMessageId(), builder.build()).queue();
         } else {
-            Main.getSyrxCore().getChannelById(TextChannel.class, config.getInviteChannel()).sendMessageEmbeds(builder.build()).queue(message -> {
+            TextChannel channel = Main.getSyrxCore().getChannelById(TextChannel.class, config.getInviteChannel());
+            if (channel == null) {
+                Main.logger.warn("Invite channel not found or not a TextChannel: " + config.getInviteChannel());
+                return;
+            }
+            channel.sendMessageEmbeds(builder.build()).queue(message -> {
                 invites.setLastMessageId(message.getId());
                 Main.getInvitesDataManager().save(invites);
                 Main.reloadConfig();

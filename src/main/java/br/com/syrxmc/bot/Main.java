@@ -21,7 +21,7 @@ import java.io.IOException;
 @Getter
 public class Main {
 
-    private final static Logger logger = LoggerFactory.getLogger(Main.class);
+    public final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     @Getter
     private static DataManager<Cash> cashManager;
