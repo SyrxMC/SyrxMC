@@ -1,28 +1,33 @@
 package br.com.syrxmc.bot.commands;
 
-import br.com.syrxmc.bot.Main;
+import br.com.syrxmc.bot.ServiceRegistry;
 import br.com.syrxmc.bot.core.command.SlashCommand;
 import br.com.syrxmc.bot.core.command.SlashCommandEvent;
 import br.com.syrxmc.bot.core.command.SlashSubcommand;
 import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
-import br.com.syrxmc.bot.data.Cash;
-import br.com.syrxmc.bot.data.GoldStock;
+import br.com.syrxmc.bot.domain.guild.GuildConfig;
+import br.com.syrxmc.bot.domain.guild.GuildConfigService;
+import br.com.syrxmc.bot.domain.ticket.Ticket;
+import br.com.syrxmc.bot.domain.ticket.TicketService;
+import br.com.syrxmc.bot.domain.ticket.TicketType;
+import br.com.syrxmc.bot.utils.SyrxEmbeds;
 import br.com.syrxmc.bot.utils.WriteChannelBackup;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.Objects.isNull;
-import static net.dv8tion.jda.internal.utils.Helpers.isEmpty;
 
 @RegisterCommand
 public class CloseCommand extends SlashCommand {
+
+    private static final Logger logger = LoggerFactory.getLogger(CloseCommand.class);
 
     public CloseCommand() {
         super("fechar", "Fechar a salas de tickets");
@@ -32,106 +37,94 @@ public class CloseCommand extends SlashCommand {
         addPermissions(Permission.ADMINISTRATOR);
     }
 
-    public static void closeChannel(Cash.Ticket ticket, Cash cash, String price, TextChannel logs, TextChannel channel, Member author) {
-
-        try {
-
-            WriteChannelBackup.writeFile(channel, "/tickets/" + ticket.type().name());
-
-            if (!isEmpty(price)) {
-                if (!Cash.TicketType.GOLD.equals(ticket.type())) {
-                    logs.sendMessageFormat("Venda realizada para <@%s> de **%s** em **CASH**, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
-                } else {
-                    logs.sendMessageFormat("Venda realizada para <@%s> de **%s** de **GOLD**, por %s", ticket.creatorId(), price, author.getAsMention()).queue();
-                }
-            }
-
-            List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
-
-            tickets.remove(ticket);
-            cash.getTickets().put(ticket.creatorId(), tickets);
-
-            Main.getCashManager().save(cash);
-            Main.reloadConfig();
-
-            channel.sendMessage("Encerrando ticket em 5s.").queue();
-            channel.delete().queueAfter(5, TimeUnit.SECONDS);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public static void closeChannel(String server, Cash.Ticket ticket, Cash cash, long price, TextChannel logs, TextChannel channel, Member author) {
-
-        try {
-
-            WriteChannelBackup.writeFile(channel, "/tickets/" + ticket.type().name());
-
-            if (price != 0) {
-                logs.sendMessageFormat("Venda realizada para <@%s> de **%s** de **GOLD**, por %s no server **%s**.", ticket.creatorId(), price, author.getAsMention(), server).queue();
-            }
-
-            List<Cash.Ticket> tickets = cash.getTickets().get(ticket.creatorId());
-            GoldStock goldStock = Main.getGoldStock();
-
-            tickets.remove(ticket);
-            cash.getTickets().put(ticket.creatorId(), tickets);
-            goldStock.removeStock(channel.getGuild(), server, price);
-
-            Main.getGoldStockDataManager().save(goldStock);
-            Main.getCashManager().save(cash);
-            Main.reloadConfig();
-
-            channel.sendMessage("Encerrando ticket em 5s.").queue();
-            channel.delete().queueAfter(5, TimeUnit.SECONDS);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
     @Override
     public void execute(SlashCommandEvent event) throws Exception {
-        // do nothing
+        // Subcommands handle execution
+    }
+
+    private static void performClose(SlashCommandInteractionEvent event, TicketType expectedType,
+                                     String logsChannelOverride, Double saleValue) {
+        TextChannel textChannel = event.getChannel().asTextChannel();
+        String channelId = textChannel.getId();
+        String guildId = event.getGuild().getId();
+
+        TicketService ticketService = ServiceRegistry.getTicketService();
+        GuildConfigService guildConfigService = ServiceRegistry.getGuildConfigService();
+
+        Optional<Ticket> ticketOpt = ticketService.findByChannel(channelId);
+        if (ticketOpt.isEmpty() || !expectedType.equals(ticketOpt.get().getType())) {
+            String typeName = expectedType.name().toLowerCase();
+            event.reply("O canal que você está tentando fechar não é de " + typeName)
+                    .setEphemeral(true).queue();
+            return;
+        }
+
+        event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
+
+        Ticket ticket = ticketOpt.get();
+
+        // Backup the channel
+        try {
+            WriteChannelBackup.writeFile(textChannel, "/tickets/" + ticket.getType().name());
+        } catch (Exception e) {
+            logger.warn("Failed to backup channel {}", channelId, e);
+        }
+
+        // Close in DB
+        String closedBy = event.getUser().getId();
+        try {
+            ticketService.close(channelId, closedBy, saleValue);
+        } catch (Exception e) {
+            logger.error("Failed to close ticket in DB for channel {}", channelId, e);
+        }
+
+        // Send log message
+        String logsChannelId = logsChannelOverride;
+        if (logsChannelId == null) {
+            try {
+                GuildConfig config = guildConfigService.getConfig(guildId);
+                if (config.getChannels() != null) {
+                    logsChannelId = switch (expectedType) {
+                        case CASH -> config.getChannels().getLogsCash();
+                        case GOLD -> config.getChannels().getLogsGold();
+                        default -> null;
+                    };
+                }
+            } catch (Exception e) {
+                logger.warn("Could not get logs channel from config: {}", e.getMessage());
+            }
+        }
+
+        if (logsChannelId != null) {
+            TextChannel logsChannel = event.getGuild().getChannelById(TextChannel.class, logsChannelId);
+            if (logsChannel != null) {
+                logsChannel.sendMessageEmbeds(SyrxEmbeds.ticketClosed(closedBy, ticket.getUserId(), saleValue)).queue();
+            }
+        }
+
+        textChannel.sendMessage("Encerrando ticket em 5s.").queue();
+        textChannel.delete().queueAfter(5, TimeUnit.SECONDS);
     }
 
     public static class CloseCash extends SlashSubcommand {
 
         public CloseCash() {
             super("cash", "Fechar a sala de cash");
-            addOption(new OptionData(OptionType.STRING, "valor", "Valor do cash que foi vendido", true));
+            addOption(new OptionData(OptionType.STRING, "valor", "Valor do cash que foi vendido", false));
         }
 
         @Override
         public void execute(SlashCommandInteractionEvent event) {
-
-            String price = event.getOption("valor").getAsString();
-
-            TextChannel textChannel = event.getChannel().asTextChannel();
-
-            Cash cash = Main.getCashManager().get();
-
-            Cash.Ticket ticket = null;
-
-            for (List<Cash.Ticket> value : cash.getTickets().values()) {
-                for (Cash.Ticket ticket1 : value) {
-                    if (ticket1.channelId().equals(textChannel.getId())) {
-                        ticket = ticket1;
-                        break;
-                    }
+            OptionMapping valorOption = event.getOption("valor");
+            Double saleValue = null;
+            if (valorOption != null) {
+                try {
+                    saleValue = Double.parseDouble(valorOption.getAsString());
+                } catch (NumberFormatException e) {
+                    // keep null
                 }
             }
-
-            if (!isNull(ticket) && !Cash.TicketType.CASH.equals(ticket.type())) {
-                event.reply("O canal que você está tentando fechar não é de cash").setEphemeral(true).queue();
-                return;
-            }
-
-            event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
-            closeChannel(ticket, cash, price, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getCashLogsId()), textChannel, event.getMember());
+            performClose(event, TicketType.CASH, null, saleValue);
         }
     }
 
@@ -139,33 +132,14 @@ public class CloseCommand extends SlashCommand {
 
         public CloseIntermedio() {
             super("intermedio", "Fechar a sala de intermedio");
+            addOption(new OptionData(OptionType.NUMBER, "valor", "Valor do intermédio", false));
         }
 
         @Override
         public void execute(SlashCommandInteractionEvent event) {
-
-            TextChannel textChannel = event.getChannel().asTextChannel();
-
-            Cash cash = Main.getCashManager().get();
-
-            Cash.Ticket ticket = null;
-
-            for (List<Cash.Ticket> value : cash.getTickets().values()) {
-                for (Cash.Ticket ticket1 : value) {
-                    if (ticket1.channelId().equals(textChannel.getId())) {
-                        ticket = ticket1;
-                        break;
-                    }
-                }
-            }
-
-            if (!isNull(ticket) && !Cash.TicketType.INTERMEDIO.equals(ticket.type())) {
-                event.reply("O canal que você está tentando fechar não é de intermédio").setEphemeral(true).queue();
-                return;
-            }
-
-            event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
-            closeChannel(ticket, cash, null, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getCashLogsId()), textChannel, event.getMember());
+            OptionMapping valorOption = event.getOption("valor");
+            Double saleValue = valorOption != null ? valorOption.getAsDouble() : null;
+            performClose(event, TicketType.INTERMEDIO, null, saleValue);
         }
     }
 
@@ -173,50 +147,14 @@ public class CloseCommand extends SlashCommand {
 
         public CloseGold() {
             super("gold", "Fechar a sala de gold");
-            addOption(new OptionData(OptionType.STRING, "servidor", "Servidor da venda", true));
-            addOption(new OptionData(OptionType.INTEGER, "valor", "Valor de gold vendida", true));
+            addOption(new OptionData(OptionType.NUMBER, "valor", "Valor de gold vendida", false));
         }
 
         @Override
         public void execute(SlashCommandInteractionEvent event) {
-            event.deferReply().setEphemeral(true).complete().deleteOriginal().queue();
-
-            try {
-                String server = event.getOption("servidor").getAsString();
-                long valor = event.getOption("valor").getAsLong();
-
-                GoldStock stock = Main.getGoldStockDataManager().get();
-
-                if (!stock.getGoldStock().containsKey(server)) {
-                    event.reply("Não tem estoque para esse servidor").setEphemeral(true).queue();
-                    return;
-                }
-
-                TextChannel textChannel = event.getChannel().asTextChannel();
-
-                Cash cash = Main.getCashManager().get();
-
-                Cash.Ticket ticket = null;
-
-                for (List<Cash.Ticket> value : cash.getTickets().values()) {
-                    for (Cash.Ticket ticket1 : value) {
-                        if (ticket1.channelId().equals(textChannel.getId())) {
-                            ticket = ticket1;
-                            break;
-                        }
-                    }
-                }
-
-                if (!isNull(ticket) && !Cash.TicketType.GOLD.equals(ticket.type())) {
-                    event.reply("O canal que você está tentando fechar não é de gold").setEphemeral(true).queue();
-                    return;
-                }
-
-                closeChannel(server, ticket, cash, valor, event.getGuild().getChannelById(TextChannel.class, Main.getSyrxCore().getConfig().getGoldLogsId()), textChannel, event.getMember());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            OptionMapping valorOption = event.getOption("valor");
+            Double saleValue = valorOption != null ? valorOption.getAsDouble() : null;
+            performClose(event, TicketType.GOLD, null, saleValue);
         }
     }
-
 }

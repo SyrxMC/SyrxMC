@@ -45,6 +45,8 @@ public class SyrxCore {
         DynamicEventHandler.getInstance().addListener(new IntermedioButtonListener(config));
         DynamicEventHandler.getInstance().addListener(new GoldButtonListener(config));
         DynamicEventHandler.getInstance().addListener(new TicketSelfButtonListener(config));
+        DynamicEventHandler.getInstance().addListener(new CashTicketButtonListener());
+        DynamicEventHandler.getInstance().addListener(new ChannelDeleteListener());
     }
 
     private JDA createBot() {
@@ -66,12 +68,12 @@ public class SyrxCore {
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_VOICE_STATES,
                         GatewayIntent.GUILD_MODERATION,
-                        GatewayIntent.GUILD_EMOJIS_AND_STICKERS
+                        GatewayIntent.GUILD_EXPRESSIONS
                 )
                 .setEventPassthrough(true)
                 .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter, new InviteListener())
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
-                .setActivity(Activity.customStatus("DREAMSCAPE MARKET - Selling Cash"));
+                .setActivity(Activity.customStatus("Dreamscape SHOP"));
 
         return builder.build();
 

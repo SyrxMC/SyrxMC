@@ -5,10 +5,11 @@ import br.com.syrxmc.bot.core.listeners.events.DynamicHandler;
 import br.com.syrxmc.bot.data.Cash;
 import br.com.syrxmc.bot.data.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -23,7 +24,7 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
     private final Config config;
 
     public CashButtonListener(Config config) {
-        super(event -> Objects.equals(event.getButton().getId(), "cashMenu"));
+        super(event -> Objects.equals(event.getButton().getCustomId(), "cashMenu"));
         this.config = config;
     }
 
@@ -66,6 +67,8 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
 
         } catch (Exception e) {
             e.printStackTrace();
+            createdChannel.delete().queue();
+            return;
         }
 
         String message = config.getTicketOpenMessage()
@@ -81,8 +84,8 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
 
         TextChannel textChannel = event.getGuild().getChannelById(TextChannel.class, createdChannel.getId());
 
-        textChannel.sendMessageEmbeds(builder.build()).addActionRow(
-                Button.danger("closeSelf", "FECHAR TICKET").withEmoji(Emoji.fromUnicode("\u2716"))
+        textChannel.sendMessageEmbeds(builder.build()).addComponents(
+                ActionRow.of(Button.danger("closeSelf", "FECHAR TICKET").withEmoji(Emoji.fromUnicode("\u2716")))
         ).queue();
 
         textChannel.sendMessage(message).queue();

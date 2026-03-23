@@ -17,6 +17,10 @@ public class Config {
 
     private List<String> casherIds;
 
+    private List<String> goldCashersIds;
+
+    private List<String> intermediateIds;
+
     private String greetingChannelId;
 
     private String inviteChannel;

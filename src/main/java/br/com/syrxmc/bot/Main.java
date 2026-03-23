@@ -38,38 +38,13 @@ public class Main {
     private static Invites invites;
 
     @Getter
-    private static  DataManager<Invites> invitesDataManager;
+    private static DataManager<Invites> invitesDataManager;
 
     @Getter
     private static DataManager<GoldStock> goldStockDataManager;
 
-
-
-    public static void main(String[] args) throws IOException, SchedulerException {
-
-        logger.info("Iniciando o bot...");
-
-        DataManager<Config> configDataManager = new DataManager<>("config.json", Config::new).create();
-
-        configs();
-
-        syrxCore = new SyrxCore(configDataManager.get());
-
-        syrxCore.initialize();
-
-        SchedulerFactory shedFact = new StdSchedulerFactory();
-
-        Scheduler scheduler = shedFact.getScheduler();
-        scheduler.start();
-
-        JobDetail job = JobBuilder.newJob(LeadboardScheduler.class)
-                .build();
-
-        Trigger trigger = TriggerBuilder.newTrigger()
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0/5 * * * ?"))
-                .build();
-
-        scheduler.scheduleJob(job, trigger);
+    public static void main(String[] args) {
+        SyrxBot.start();
     }
 
     @SneakyThrows

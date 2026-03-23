@@ -1,72 +1,114 @@
 package br.com.syrxmc.bot.utils;
 
-import br.com.syrxmc.bot.Main;
-import br.com.syrxmc.bot.data.Config;
-import br.com.syrxmc.bot.data.Invites;
-import net.dv8tion.jda.api.EmbedBuilder;
+import br.com.syrxmc.bot.domain.guild.GuildConfig;
+import br.com.syrxmc.bot.domain.guild.GuildConfigService;
+import br.com.syrxmc.bot.domain.invite.InviteData;
+import br.com.syrxmc.bot.domain.invite.InviteService;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.awt.*;
 import java.util.List;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class LeadboardScheduler implements Job {
 
-    public static List<String> ignoredIds = List.of("184093192243642368", "464980441586466826", "398859614596366336", "248841176038375424");
+    private static final Logger logger = LoggerFactory.getLogger(LeadboardScheduler.class);
+
+    public static final List<String> ignoredIds = List.of(
+            "184093192243642368",
+            "464980441586466826",
+            "398859614596366336",
+            "248841176038375424"
+    );
+
+    // Static references set by SyrxBot before scheduling
+    private static GuildConfigService guildConfigService;
+    private static InviteService inviteService;
+    private static JDA jda;
+
+    private static String registeredGuildId;
+
+    public static void setServices(GuildConfigService guildConfigService, InviteService inviteService, JDA jda) {
+        LeadboardScheduler.guildConfigService = guildConfigService;
+        LeadboardScheduler.inviteService = inviteService;
+        LeadboardScheduler.jda = jda;
+    }
+
+    public static void setRegisteredGuildId(String guildId) {
+        LeadboardScheduler.registeredGuildId = guildId;
+    }
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        Main.reloadConfig();
-        Invites invites = Main.getInvites();
-        if (!invites.isActive()) return;
-
-        List<Invites.InviteData> data = new ArrayList<>();
-        Config config = Main.getSyrxCore().getConfig();
-
-
-        invites.getInvites().forEach((key, value) -> data.add(value));
-
-        Map<String, Long> userTotalValues = new HashMap<>();
-
-        for (Invites.InviteData datum : data) {
-            String userId = datum.getUserId();
-            long totalValue = datum.getCount();
-            userTotalValues.put(userId, userTotalValues.getOrDefault(userId, 0L) + totalValue);
+        if (guildConfigService == null || inviteService == null || jda == null) {
+            logger.warn("LeadboardScheduler services not configured — skipping execution.");
+            return;
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
-        EmbedBuilder builder = new EmbedBuilder();
-        AtomicInteger i = new AtomicInteger(0);
+        // Determine guild ID: use registered or first available guild
+        String guildId = registeredGuildId;
+        if (guildId == null || guildId.isBlank()) {
+            if (jda.getGuilds().isEmpty()) {
+                logger.warn("No guilds available in JDA, skipping leaderboard update.");
+                return;
+            }
+            guildId = jda.getGuilds().get(0).getId();
+        }
 
+        GuildConfig config;
+        try {
+            config = guildConfigService.getConfig(guildId);
+        } catch (Exception e) {
+            logger.warn("Could not get guild config for leaderboard update: {}", e.getMessage());
+            return;
+        }
 
-        stringBuilder.append("Segue abaixo as ***TOP 5*** pessoas que mais convidaram nesse evento.\n\n");
+        if (!config.isInviteEventActive()) {
+            return;
+        }
 
-        userTotalValues.entrySet().stream()
-                .filter(entry -> !ignoredIds.contains(entry.getKey()))
-                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+        List<InviteData> top = inviteService.getLeaderboard(guildId);
+        // Filter ignored IDs
+        top = top.stream()
+                .filter(d -> !ignoredIds.contains(d.getInviterUserId()))
                 .limit(5)
-                .forEach(stringLongEntry ->
-                        stringBuilder.append("***").append(ConvertNumbersEnum.values()[i.getAndIncrement()].getDescription()).append("º*** \n").append("<@")
-                                .append(stringLongEntry.getKey()).append("> `").append(stringLongEntry.getValue())
-                                .append("` ***convidado(s)***").append(i.get() - 1 == 0 ? "\uD83D\uDC51" : "").append("\n\n"));
+                .toList();
 
-        builder.setDescription(stringBuilder);
-        builder.setTitle("Ranking de convites");
-        builder.setThumbnail("https://cdn.discordapp.com/icons/1240266588352024607/a_f37eed73b2585af0d1d2cc14a9446060.gif?size=2048");
-        builder.setColor(Color.decode("#D4AF37"));
-        builder.setFooter("O ranking atualiza a cada 5 minutos.\n" +
-                "Caso você não esteja no ranking e queira saber quantas pessoas você convidou, utilize o comando /convidei, na sala #comandos \n");
-        if (invites.getLastMessageId() != null) {
-            Main.getSyrxCore().getChannelById(TextChannel.class, config.getInviteChannel()).editMessageEmbedsById(invites.getLastMessageId(), builder.build()).queue();
+        if (config.getChannels() == null || config.getChannels().getInvite() == null) {
+            logger.warn("Invite channel not configured for guild {}", guildId);
+            return;
+        }
+
+        TextChannel inviteChannel = jda.getChannelById(TextChannel.class, config.getChannels().getInvite());
+        if (inviteChannel == null) {
+            logger.warn("Invite channel not found: {}", config.getChannels().getInvite());
+            return;
+        }
+
+        String color = config.getColor();
+        MessageEmbed embed = SyrxEmbeds.leaderboard(top, color);
+
+        String lastMessageId = config.getMessages() != null ? config.getMessages().getLastLeaderboardMessageId() : null;
+        final String finalGuildId = guildId;
+
+        if (lastMessageId != null) {
+            inviteChannel.editMessageEmbedsById(lastMessageId, embed).queue(
+                    success -> logger.debug("Leaderboard updated for guild {}", finalGuildId),
+                    error -> {
+                        // Message deleted or not found — send a new one
+                        inviteChannel.sendMessageEmbeds(embed).queue(msg -> {
+                            guildConfigService.updateLastLeaderboardMessageId(finalGuildId, msg.getId());
+                        });
+                    }
+            );
         } else {
-            Main.getSyrxCore().getChannelById(TextChannel.class, config.getInviteChannel()).sendMessageEmbeds(builder.build()).queue(message -> {
-                invites.setLastMessageId(message.getId());
-                Main.getInvitesDataManager().save(invites);
-                Main.reloadConfig();
+            inviteChannel.sendMessageEmbeds(embed).queue(msg -> {
+                guildConfigService.updateLastLeaderboardMessageId(finalGuildId, msg.getId());
             });
         }
     }

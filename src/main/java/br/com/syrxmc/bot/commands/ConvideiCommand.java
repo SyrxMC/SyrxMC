@@ -1,13 +1,10 @@
 package br.com.syrxmc.bot.commands;
 
-import br.com.syrxmc.bot.Main;
+import br.com.syrxmc.bot.ServiceRegistry;
 import br.com.syrxmc.bot.core.command.SlashCommand;
 import br.com.syrxmc.bot.core.command.SlashCommandEvent;
 import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
-import br.com.syrxmc.bot.data.Invites;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import br.com.syrxmc.bot.domain.invite.InviteService;
 
 @RegisterCommand
 public class ConvideiCommand extends SlashCommand {
@@ -18,23 +15,14 @@ public class ConvideiCommand extends SlashCommand {
 
     @Override
     public void execute(SlashCommandEvent event) throws Exception {
-        List<String> codeByUserId = Main.getInvites().getCodeByUserId(event.getAuthor().getId());
+        String guildId = event.getGuild().getId();
+        String userId = event.getAuthor().getId();
 
-        AtomicReference<Long> value = new AtomicReference<>(0L);
+        InviteService inviteService = ServiceRegistry.getInviteService();
+        int count = inviteService.getUserInviteCount(guildId, userId);
 
-        if (codeByUserId != null) {
-            codeByUserId.forEach((code) -> {
-                Invites.InviteData invite = Main.getInvites().getInvite(code);
-
-                value.set(value.get() + invite.getCount());
-            });
-
-            if (value.get() > 0L) {
-                event.reply("Você convidou " + value.get() + " pessoas.").setEphemeral(true).queue();
-
-            } else {
-                event.reply("Você não convidou ninguém ainda.").setEphemeral(true).queue();
-            }
+        if (count > 0) {
+            event.reply("Você convidou " + count + " pessoa(s).").setEphemeral(true).queue();
         } else {
             event.reply("Você não convidou ninguém ainda.").setEphemeral(true).queue();
         }

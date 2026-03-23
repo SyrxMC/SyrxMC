@@ -1,23 +1,27 @@
 package br.com.syrxmc.bot.commands;
 
-import br.com.syrxmc.bot.Main;
+import br.com.syrxmc.bot.ServiceRegistry;
 import br.com.syrxmc.bot.core.command.SlashCommand;
 import br.com.syrxmc.bot.core.command.SlashCommandEvent;
 import br.com.syrxmc.bot.core.command.annotations.RegisterCommand;
-import br.com.syrxmc.bot.data.Invites;
-import br.com.syrxmc.bot.utils.ConvertNumbersEnum;
-import net.dv8tion.jda.api.EmbedBuilder;
+import br.com.syrxmc.bot.domain.guild.GuildConfig;
+import br.com.syrxmc.bot.domain.guild.GuildConfigService;
+import br.com.syrxmc.bot.domain.invite.InviteData;
+import br.com.syrxmc.bot.domain.invite.InviteService;
+import br.com.syrxmc.bot.utils.LeadboardScheduler;
+import br.com.syrxmc.bot.utils.SyrxEmbeds;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.awt.*;
-import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static br.com.syrxmc.bot.utils.LeadboardScheduler.ignoredIds;
 
 @RegisterCommand
 public class LeadBoardCommand extends SlashCommand {
+
+    private static final Logger logger = LoggerFactory.getLogger(LeadBoardCommand.class);
 
     public LeadBoardCommand() {
         super("leadboard", "Cria o leadboard");
@@ -28,41 +32,53 @@ public class LeadBoardCommand extends SlashCommand {
     public void execute(SlashCommandEvent event) throws Exception {
         event.ignoreReplyWait();
 
-        Invites invites = Main.getInvites();
-        Main.reloadConfig();
-        List<Invites.InviteData> data = new ArrayList<>();
+        String guildId = event.getGuild().getId();
+        InviteService inviteService = ServiceRegistry.getInviteService();
+        GuildConfigService guildConfigService = ServiceRegistry.getGuildConfigService();
 
+        List<InviteData> top = inviteService.getLeaderboard(guildId);
+        // Filter ignored IDs
+        top = top.stream()
+                .filter(d -> !LeadboardScheduler.ignoredIds.contains(d.getInviterUserId()))
+                .limit(5)
+                .toList();
 
-        Main.getInvites().getInvites().forEach((key, value) -> data.add(value));
-
-        Map<String, Long> userTotalValues = new HashMap<>();
-
-        for (Invites.InviteData datum : data) {
-            String userId = datum.getUserId();
-            long totalValue = datum.getCount();
-            userTotalValues.put(userId, userTotalValues.getOrDefault(userId, 0L) + totalValue);
+        GuildConfig config;
+        try {
+            config = guildConfigService.getConfig(guildId);
+        } catch (Exception e) {
+            logger.warn("Could not load guild config: {}", e.getMessage());
+            event.getChannel().sendMessageEmbeds(SyrxEmbeds.error("Configuração do servidor não encontrada.")).queue();
+            return;
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
-        EmbedBuilder builder = new EmbedBuilder();
-        AtomicInteger i = new AtomicInteger(0);
-        stringBuilder.append("Segue abaixo as TOP 5 pessoas que mais convidaram nesse evento.\n\n");
+        String color = config.getColor();
+        MessageEmbed embed = SyrxEmbeds.leaderboard(top, color);
 
-        userTotalValues.entrySet().stream()
-                .filter(entry -> !ignoredIds.contains(entry.getKey()))
-                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
-                .limit(5)
-                .forEach(stringLongEntry ->
-                        stringBuilder.append(ConvertNumbersEnum.values()[i.getAndIncrement()].getDescription()).append("<@")
-                                .append(stringLongEntry.getKey()).append("> `").append(stringLongEntry.getValue())
-                                .append("` ***convidado(s)***").append(i.get() - 1 == 0? " \uD83D\uDC51" : "" ).append("\n\n"));
+        String inviteChannelId = config.getChannels() != null ? config.getChannels().getInvite() : null;
+        TextChannel targetChannel;
+        if (inviteChannelId != null) {
+            targetChannel = event.getGuild().getChannelById(TextChannel.class, inviteChannelId);
+        } else {
+            targetChannel = event.getTextChannel();
+        }
 
-        builder.setDescription(stringBuilder);
-        builder.setTitle("Ranking de convites");
-        builder.setFooter("Caso você não esteja no ranking e queira saber quantas pessoas você convidou, utilize o comando /convidei, na sala #comandos");
-        builder.setColor(Color.decode("#D4AF37"));
-        builder.setThumbnail("https://cdn.discordapp.com/icons/1240266588352024607/a_f37eed73b2585af0d1d2cc14a9446060.gif?size=2048");
-        event.getChannel().sendMessageEmbeds(builder.build()).queue(message -> invites.setLastMessageId(message.getId()));
+        if (targetChannel == null) {
+            targetChannel = event.getTextChannel();
+        }
 
+        final TextChannel finalChannel = targetChannel;
+        String lastMsgId = config.getMessages() != null ? config.getMessages().getLastLeaderboardMessageId() : null;
+
+        if (lastMsgId != null) {
+            finalChannel.editMessageEmbedsById(lastMsgId, embed).queue(
+                    success -> {},
+                    err -> finalChannel.sendMessageEmbeds(embed).queue(msg ->
+                            guildConfigService.updateLastLeaderboardMessageId(guildId, msg.getId()))
+            );
+        } else {
+            finalChannel.sendMessageEmbeds(embed).queue(msg ->
+                    guildConfigService.updateLastLeaderboardMessageId(guildId, msg.getId()));
+        }
     }
 }

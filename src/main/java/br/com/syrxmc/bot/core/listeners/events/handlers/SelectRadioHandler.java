@@ -3,8 +3,8 @@ package br.com.syrxmc.bot.core.listeners.events.handlers;
 import br.com.syrxmc.bot.core.listeners.events.DynamicHandler;
 import br.com.syrxmc.bot.core.listeners.events.IDynamicHandler;
 import lombok.EqualsAndHashCode;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.util.Objects;
 
@@ -14,7 +14,7 @@ public class SelectRadioHandler extends DynamicHandler<StringSelectInteractionEv
     private final IDynamicHandler<StringSelectInteractionEvent> handler;
 
     public SelectRadioHandler(StringSelectMenu selectMenu, IDynamicHandler<StringSelectInteractionEvent> handler) {
-        super(event -> Objects.equals(event.getSelectMenu().getId(), selectMenu.getId()), false);
+        super(event -> Objects.equals(event.getSelectMenu().getCustomId(), selectMenu.getCustomId()), false);
         this.handler = handler;
     }
 

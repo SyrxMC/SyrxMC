@@ -17,7 +17,7 @@ public class TicketSelfButtonListener extends DynamicHandler<ButtonInteractionEv
     private final Config config;
 
     public TicketSelfButtonListener(Config config) {
-        super(event -> Objects.equals(event.getButton().getId(), "closeSelf"));
+        super(event -> Objects.equals(event.getButton().getCustomId(), "closeSelf"));
         this.config = config;
     }
 
@@ -35,7 +35,7 @@ public class TicketSelfButtonListener extends DynamicHandler<ButtonInteractionEv
                 return;
             }
 
-            Cash cash = Main.getCash();
+            Cash cash = Main.getCashManager().get();
 
             Cash.Ticket ticket = null;
 
@@ -46,6 +46,11 @@ public class TicketSelfButtonListener extends DynamicHandler<ButtonInteractionEv
                         break;
                     }
                 }
+            }
+
+            if (ticket == null) {
+                event.getChannel().sendMessage("Ticket não encontrado. Entre em contato com a staff.").queue();
+                return;
             }
 
             WriteChannelBackup.writeFile(event.getChannel().asTextChannel(), "/tickets/" + ticket.type().name());
