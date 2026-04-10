@@ -11,6 +11,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,7 @@ public class CashMenuCommand extends SlashCommand {
     public CashMenuCommand() {
         super("cashmenu", "Create cash menu", true);
         addPermissions(Permission.ADMINISTRATOR);
+        addOption(new OptionData(OptionType.BOOLEAN, "gold", "gerar botão de gold"));
     }
 
     @Override
@@ -52,11 +56,23 @@ public class CashMenuCommand extends SlashCommand {
         builder.setColor(color);
         builder.setImage("https://amplologistica.com.br/wp-content/uploads/2018/02/ecommerce-subway-studio-malaysia.gif");
 
-        event.getChannel().sendMessageEmbeds(builder.build()).addComponents(
-                ActionRow.of(Button.secondary("open_ticket:CASH", "QUERO CASH").withEmoji(Emoji.fromUnicode("\uD83D\uDCB0")),
-                Button.secondary("open_ticket:INTERMEDIO", "INTERMÉDIO").withEmoji(Emoji.fromUnicode("\uD83E\uDD1D")),
-                Button.secondary("open_ticket:GOLD", "QUERO GOLD").withEmoji(Emoji.fromUnicode("\uD83E\uDE99")))
-        ).queue(message -> {
+        MessageCreateAction messageCreateAction = null;
+
+        if(event.getBooleanOption("gold")) {
+            messageCreateAction = event.getChannel().sendMessageEmbeds(builder.build()).addComponents(
+                    ActionRow.of(Button.secondary("open_ticket:CASH", "QUERO CASH").withEmoji(Emoji.fromUnicode("\uD83D\uDCB0")),
+                            Button.secondary("open_ticket:INTERMEDIO", "INTERMÉDIO").withEmoji(Emoji.fromUnicode("\uD83E\uDD1D")),
+                            Button.secondary("open_ticket:GOLD", "QUERO GOLD").withEmoji(Emoji.fromUnicode("\uD83E\uDE99")))
+                    );
+        } else {
+            messageCreateAction = event.getChannel().sendMessageEmbeds(builder.build()).addComponents(
+                    ActionRow.of(Button.secondary("open_ticket:CASH", "QUERO CASH").withEmoji(Emoji.fromUnicode("\uD83D\uDCB0")),
+                            Button.secondary("open_ticket:INTERMEDIO", "INTERMÉDIO").withEmoji(Emoji.fromUnicode("\uD83E\uDD1D")))
+            );
+        }
+
+
+        messageCreateAction.queue(message -> {
             try {
                 guildConfigService.updateLastMenuMessageId(guildId, message.getId());
             } catch (Exception e) {
