@@ -234,10 +234,10 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
                 } else {
                     embed2.addField("Valor (BRL)", valorPor100BRL, false);
                     embed2.addField("Total (BRL)", totalBRL, true);
-                    pixKey = "43c94e7d-064f-4bea-af33-56212981d473";
+                    pixKey = "d3d48c03-5f43-47b7-bfa7-0c76d3f3c9db";
                     embed2.addField("PIX • Nome", "M.S SERVIÇOS DIGITAIS", false);
                     embed2.addField("PIX • Chave", pixKey, true);
-                    embed2.setImage("https://cdn.discordapp.com/attachments/1240266591451611149/1475671130600640643/PIX_XP.png");
+                    embed2.setImage("https://cdn.discordapp.com/attachments/1240266591451611149/1491952972265947136/aaaaaaaaaaaaaaaaaaaa.png?ex=69d990fb&is=69d83f7b&hm=5501cdc9d1bf6dd02cb7712a65e91ec8da0d272dbba7fcda51e0615c35c7c60b&");
                 }
 
                 embed2.setFooter("📷 QR Code será enviado abaixo");
