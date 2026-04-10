@@ -35,12 +35,29 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
     private static final Map<String, Session> SESSIONS = new ConcurrentHashMap<>();
 
     public CashButtonListener(Config config) {
-        super(event -> Objects.equals(event.getButton().getId(), "cashMenu"));
+        super(event -> {
+            String id = event.getButton().getId();
+            return id != null && (id.equals("cashMenu") || id.startsWith("cash:pixcopy:") || id.startsWith("cash:login:"));
+        });
         this.config = config;
     }
 
     @Override
     public void onEvent(ButtonInteractionEvent event) {
+        String buttonId = event.getButton().getId();
+
+        if (buttonId != null && buttonId.startsWith("cash:pixcopy:")) {
+            String key = buttonId.substring("cash:pixcopy:".length());
+            event.reply(key).queue();
+            return;
+        }
+
+        if (buttonId != null && buttonId.startsWith("cash:login:")) {
+            String login = buttonId.substring("cash:login:".length());
+            event.reply(login).queue();
+            return;
+        }
+
         Cash cash = Main.getCashManager().get();
 
         // Verifica se o usuário já tem um ticket de cash aberto
@@ -235,7 +252,7 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
                     embed2.addField("Valor (BRL)", valorPor100BRL, false);
                     embed2.addField("Total (BRL)", totalBRL, true);
                     pixKey = "d3d48c03-5f43-47b7-bfa7-0c76d3f3c9db";
-                    embed2.addField("PIX • Nome", "M.S SERVIÇOS DIGITAIS", false);
+                    embed2.addField("PIX • Nome", "I.R SERVIÇOS DIGITAIS", false);
                     embed2.addField("PIX • Chave", pixKey, true);
                     embed2.setImage("https://cdn.discordapp.com/attachments/1240266591451611149/1491952972265947136/aaaaaaaaaaaaaaaaaaaa.png?ex=69d990fb&is=69d83f7b&hm=5501cdc9d1bf6dd02cb7712a65e91ec8da0d272dbba7fcda51e0615c35c7c60b&");
                 }
