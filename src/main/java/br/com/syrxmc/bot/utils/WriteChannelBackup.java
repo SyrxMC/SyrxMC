@@ -9,10 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -43,7 +44,7 @@ public class WriteChannelBackup {
                 if (f.mkdirs())
                     logger.info("File created...");
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(String.format(channelPath + "%1$s.txt", channel.getName() + "-" + instantToString(channel.getTimeCreated().toInstant()))));
+            BufferedWriter writer = Files.newBufferedWriter(Paths.get(String.format(channelPath + "%1$s.txt", channel.getName() + "-" + instantToString(channel.getTimeCreated().toInstant()))), StandardCharsets.UTF_8);
 
             channel.getIterableHistory().forEachAsync(message -> {
 
@@ -55,7 +56,7 @@ public class WriteChannelBackup {
                     writer.write(String.format("[%1$s] - %2$s : %3$s",
                             getFormat(message),
                             getName(message),
-                            new String(getMessages(message, channelPath).getBytes(StandardCharsets.UTF_8)))
+                            getMessages(message, channelPath))
                     );
 
                     writer.newLine();
@@ -78,18 +79,16 @@ public class WriteChannelBackup {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Falha ao gerar backup do canal {}", channel.getName(), e);
         }
     }
 
     @NotNull
     private static String getName(Message message) {
 
-        return new String(
-                message.getMember() == null ?
-                        message.getAuthor().getName().getBytes(StandardCharsets.UTF_8) :
-                        message.getMember().getEffectiveName().getBytes(StandardCharsets.UTF_8)
-        );
+        return message.getMember() == null
+                ? message.getAuthor().getName()
+                : message.getMember().getEffectiveName();
 
     }
 

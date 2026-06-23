@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -64,16 +63,7 @@ public class DynamicEventHandler implements EventListener {
     public void onEvent(@NotNull GenericEvent event) {
         try {
             synchronized (handlers) {
-                Iterator<DynamicHandler<?>> iterator = handlers.stream().iterator();
-
-                while (iterator.hasNext()) {
-                    DynamicHandler<?> next = iterator.next();
-                    if (next != null) {
-                        if (next.validateEvent(event) && !next.isPersist()) {
-                            handlers.remove(next);
-                        }
-                    }
-                }
+                handlers.removeIf(handler -> handler != null && handler.validateEvent(event) && !handler.isPersist());
             }
         } catch (Exception e) {
             logger.error("Erro ao remover evento", e);

@@ -42,3 +42,11 @@ bin/
 /logs/
 
 config*.json
+
+# Dados de runtime (contêm IDs de usuários e conversas de tickets)
+cashTickets.json
+cashDaily.json
+goldStock.json
+invites.json
+/files/
+.env

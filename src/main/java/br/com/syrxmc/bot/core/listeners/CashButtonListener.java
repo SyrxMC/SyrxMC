@@ -8,7 +8,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -20,10 +23,12 @@ import static br.com.syrxmc.bot.utils.UtilsStatics.PRIMARY_COLOR;
 
 public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
 
+    private static final Logger logger = LoggerFactory.getLogger(CashButtonListener.class);
+
     private final Config config;
 
     public CashButtonListener(Config config) {
-        super(event -> Objects.equals(event.getButton().getId(), "cashMenu"));
+        super(event -> Objects.equals(event.getButton().getCustomId(), "cashMenu"));
         this.config = config;
     }
 
@@ -65,7 +70,7 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
             Main.reloadConfig();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao abrir ticket de cash", e);
         }
 
         String message = config.getTicketOpenMessage()
@@ -81,9 +86,9 @@ public class CashButtonListener extends DynamicHandler<ButtonInteractionEvent> {
 
         TextChannel textChannel = event.getGuild().getChannelById(TextChannel.class, createdChannel.getId());
 
-        textChannel.sendMessageEmbeds(builder.build()).addActionRow(
+        textChannel.sendMessageEmbeds(builder.build()).addComponents(ActionRow.of(
                 Button.danger("closeSelf", "FECHAR TICKET").withEmoji(Emoji.fromUnicode("\u2716"))
-        ).queue();
+        )).queue();
 
         textChannel.sendMessage(message).queue();
     }

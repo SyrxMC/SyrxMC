@@ -95,8 +95,6 @@ public class InviteListener extends ListenerAdapter {
             }
 
             logger.info("Invite code: {}", inviteCode);
-            System.out.println(inviteCode);
-
 
             Main.reloadConfig();
 

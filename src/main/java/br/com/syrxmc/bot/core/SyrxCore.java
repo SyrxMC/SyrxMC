@@ -5,7 +5,6 @@ import br.com.syrxmc.bot.core.listeners.*;
 import br.com.syrxmc.bot.core.listeners.events.DynamicEventHandler;
 import br.com.syrxmc.bot.core.listeners.invite.InviteListener;
 import br.com.syrxmc.bot.data.Config;
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -30,7 +29,6 @@ public class SyrxCore {
     private final JDA jda;
     private final Config config;
     private final CommandManager commandManager;
-    private final EventWaiter eventWaiter = new EventWaiter();
 
     public SyrxCore(Config config) {
         this.config = config;
@@ -66,10 +64,10 @@ public class SyrxCore {
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_VOICE_STATES,
                         GatewayIntent.GUILD_MODERATION,
-                        GatewayIntent.GUILD_EMOJIS_AND_STICKERS
+                        GatewayIntent.GUILD_EXPRESSIONS
                 )
                 .setEventPassthrough(true)
-                .addEventListeners(DynamicEventHandler.getInstance(), eventWaiter, new InviteListener())
+                .addEventListeners(DynamicEventHandler.getInstance(), new InviteListener())
                 .disableCache(List.of(EMOJI, CLIENT_STATUS, ACTIVITY, SCHEDULED_EVENTS))
                 .setActivity(Activity.customStatus("DREAM SCAPE SHOP - Selling Cash"));
 

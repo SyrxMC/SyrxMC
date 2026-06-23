@@ -27,14 +27,11 @@ public class DataManager<T> {
     private File file;
 
     public DataManager<T> create() throws IOException {
-        File file = new File(this.fileName);
+        this.file = new File(this.fileName);
 
-        if (!file.exists()) {
-            if (file.createNewFile()) {
-                objectMapper.writeValue(file, supplier.get());
-                LOGGER.info("[Data] File {} generated.", file.getAbsolutePath());
-                System.exit(0);
-            }
+        if (!file.exists() && file.createNewFile()) {
+            objectMapper.writeValue(file, supplier.get());
+            LOGGER.info("[Data] File {} generated.", file.getAbsolutePath());
         }
         this.config = (T) objectMapper.readValue(file, supplier.get().getClass());
 

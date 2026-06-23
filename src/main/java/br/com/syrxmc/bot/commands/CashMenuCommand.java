@@ -9,8 +9,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class CashMenuCommand extends SlashCommand {
         builder.setColor(PRIMARY_COLOR);
         builder.setImage("https://amplologistica.com.br/wp-content/uploads/2018/02/ecommerce-subway-studio-malaysia.gif");
 
-        List<ItemComponent> actionRow = new ArrayList<>(List.of(
+        List<ActionRowChildComponent> actionRow = new ArrayList<>(List.of(
                 Button.secondary("cashMenu", "QUERO CASH").withEmoji(Emoji.fromUnicode("\uD83D\uDCB0")),
                 Button.secondary("intermedio", "INTERMÉDIO").withEmoji(Emoji.fromUnicode("\uD83E\uDD1D")))
         );
@@ -55,7 +56,7 @@ public class CashMenuCommand extends SlashCommand {
         if (generateGold)
             actionRow.add(Button.secondary("gold", "QUERO GOLD").withEmoji(Emoji.fromUnicode("\uD83E\uDE99")));
 
-        channel.sendMessageEmbeds(builder.build()).addActionRow(actionRow).queue(consumer);
+        channel.sendMessageEmbeds(builder.build()).addComponents(ActionRow.of(actionRow)).queue(consumer);
     }
 
 

@@ -5,6 +5,7 @@ import br.com.syrxmc.bot.core.SyrxCore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -12,7 +13,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 
 import java.util.Collection;
@@ -33,7 +33,7 @@ public class SlashCommandEvent {
         return event.replyFormat(message, format);
     }
 
-    public ReplyCallbackAction reply(Collection<? extends LayoutComponent> components) {
+    public ReplyCallbackAction reply(Collection<? extends MessageTopLevelComponent> components) {
         return event.replyComponents(components);
     }
 

@@ -51,9 +51,15 @@ public class Main {
 
         DataManager<Config> configDataManager = new DataManager<>("config.json", Config::new).create();
 
+        Config config = configDataManager.get();
+        if (config.getToken() == null || config.getToken().isBlank()) {
+            logger.error("config.json sem token. Preencha o token e reinicie o bot.");
+            return;
+        }
+
         configs();
 
-        syrxCore = new SyrxCore(configDataManager.get());
+        syrxCore = new SyrxCore(config);
 
         syrxCore.initialize();
 

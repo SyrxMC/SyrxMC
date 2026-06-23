@@ -4,7 +4,7 @@ import br.com.syrxmc.bot.core.listeners.events.DynamicHandler;
 import br.com.syrxmc.bot.core.listeners.events.IDynamicHandler;
 import lombok.EqualsAndHashCode;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.Button;
 
 import java.util.Objects;
 
@@ -15,7 +15,7 @@ public class ButtonEventHandler extends DynamicHandler<ButtonInteractionEvent> {
 
 
     private ButtonEventHandler(Button button, IDynamicHandler<ButtonInteractionEvent> handler) {
-        super(event -> Objects.equals(event.getButton().getId(), button.getId()), false);
+        super(event -> Objects.equals(event.getButton().getCustomId(), button.getCustomId()), false);
         this.handler = handler;
     }
 

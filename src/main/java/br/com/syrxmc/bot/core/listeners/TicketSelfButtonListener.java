@@ -7,6 +7,8 @@ import br.com.syrxmc.bot.data.Config;
 import br.com.syrxmc.bot.utils.WriteChannelBackup;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,10 +16,12 @@ import java.util.concurrent.TimeUnit;
 
 public class TicketSelfButtonListener extends DynamicHandler<ButtonInteractionEvent> {
 
+    private static final Logger logger = LoggerFactory.getLogger(TicketSelfButtonListener.class);
+
     private final Config config;
 
     public TicketSelfButtonListener(Config config) {
-        super(event -> Objects.equals(event.getButton().getId(), "closeSelf"));
+        super(event -> Objects.equals(event.getButton().getCustomId(), "closeSelf"));
         this.config = config;
     }
 
@@ -62,7 +66,7 @@ public class TicketSelfButtonListener extends DynamicHandler<ButtonInteractionEv
             event.getChannel().delete().queueAfter(5, TimeUnit.SECONDS);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao fechar ticket", e);
         }
     }
 }
